@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — inventory_screen.dart
-// Main inventory screen with sorted product list and Quick Start onboarding.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran magazynu: lista produktów + onboard Quick Start.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,89 +24,87 @@ class InventoryScreen extends ConsumerWidget {
         bottom: false,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          slivers: [
-            // ── App Bar ────────────────────────────────────────────────────────
-            SliverAppBar(
-              floating: true,
-              snap: true,
-              backgroundColor: AppColors.background,
-              expandedHeight: 0,
-              toolbarHeight: 64,
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Fridgge',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                        ),
+            slivers: [
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                backgroundColor: AppColors.background,
+                expandedHeight: 0,
+                toolbarHeight: 64,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fridgge',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1,
+                          ),
+                    ),
+                    Text(
+                      'Twój magazyn żywności',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.textTertiary),
+                    ),
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.search_outlined),
+                    color: AppColors.textSecondary,
+                    onPressed: () {}, // Module 3
                   ),
-                  Text(
-                    'Twój magazyn żywności',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: AppColors.textTertiary),
+                  IconButton(
+                    icon: const Icon(Icons.tune_outlined),
+                    color: AppColors.textSecondary,
+                    onPressed: () {}, // Module 3
+                    padding: const EdgeInsets.only(right: 16),
                   ),
                 ],
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search_outlined),
-                  color: AppColors.textSecondary,
-                  onPressed: () {}, // Module 3: search
-                ),
-                IconButton(
-                  icon: const Icon(Icons.tune_outlined),
-                  color: AppColors.textSecondary,
-                  onPressed: () {}, // Module 3: filter
-                  padding: const EdgeInsets.only(right: 16),
-                ),
-              ],
-            ),
 
-            // ── Content ────────────────────────────────────────────────────────
-            products.when(
-              loading: () => const SliverFillRemaining(
-                child: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
+              products.when(
+                loading: () => const SliverFillRemaining(
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
                 ),
+                error: (err, _) => SliverFillRemaining(
+                  child: _ErrorView(message: err.toString()),
+                ),
+                data: (items) {
+                  if (items.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: _EmptyInventoryView(),
+                    );
+                  }
+                  return _ProductList(products: items);
+                },
               ),
-              error: (err, _) => SliverFillRemaining(
-                child: _ErrorView(message: err.toString()),
-              ),
-              data: (items) {
-                if (items.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: _EmptyInventoryView(),
-                  );
-                }
-                return _ProductList(products: items);
-              },
-            ),
 
-            // ── Bottom padding for floating nav bar ────────────────────────────
-            const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
-          ],
+              const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
+            ],
+          ),
         ),
-      ),
 
-      // ── FAB (Add product) ──────────────────────────────────────────────────
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go(AppRoutes.scanner),
-        icon: const Icon(Icons.add_a_photo_outlined),
-        label: const Text('Dodaj'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.background,
-      ),
-    );
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 104),
+          child: FloatingActionButton.extended(
+            onPressed: () => context.go(AppRoutes.scanner),
+            icon: const Icon(Icons.add_a_photo_outlined),
+            label: const Text('Dodaj'),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.background,
+          ),
+        ),
+      );
+    }
   }
-}
 
-// ── Product list sliver ───────────────────────────────────────────────────────
-
+// Lista produktów
 class _ProductList extends StatelessWidget {
   const _ProductList({required this.products});
 
@@ -130,8 +125,7 @@ class _ProductList extends StatelessWidget {
   }
 }
 
-// ── Empty state (with Quick Start) ───────────────────────────────────────────
-
+// Empty state + Szybki start
 class _EmptyInventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -140,7 +134,7 @@ class _EmptyInventoryView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hero illustration
+          // Ilustracja hero
           Container(
             width: double.infinity,
             height: 160,
@@ -189,8 +183,7 @@ class _EmptyInventoryView extends StatelessWidget {
   }
 }
 
-// ── Error view ────────────────────────────────────────────────────────────────
-
+// Obsługa błędów
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.message});
 

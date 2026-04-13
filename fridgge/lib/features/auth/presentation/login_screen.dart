@@ -1,74 +1,82 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — login_screen.dart
-// Placeholder — full Firebase Auth implementation in Module 2.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran logowania (Firebase Auth w Module 2).
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../domain/auth_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Spacer(),
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Logo
+                    const Text('🥗', style: TextStyle(fontSize: 56)),
+                    const SizedBox(height: 16),
+                    Text('Witaj w Fridgge',
+                        style: Theme.of(context).textTheme.headlineLarge),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Zarządzaj żywnością, generuj przepisy\ni redukuj marnowanie.',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 32),
 
-              // ── Logo ───────────────────────────────────────────────────────
-              const Text('🥗', style: TextStyle(fontSize: 56)),
-              const SizedBox(height: 16),
-              Text('Witaj w Fridgge',
-                  style: Theme.of(context).textTheme.headlineLarge),
-              const SizedBox(height: 8),
-              Text(
-                'Zarządzaj żywnością, generuj przepisy\ni redukuj marnowanie.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: AppColors.textSecondary),
-              ),
-              const Spacer(),
+                    // Logowanie (Module 2 wepnie Firebase)
+                    _AuthButton(
+                      icon: Icons.email_outlined,
+                      label: 'Kontynuuj z Email',
+                      onTap: () => context.go(AppRoutes.register),
+                    ),
+                    const SizedBox(height: 12),
+                    _AuthButton(
+                      icon: Icons.g_mobiledata,
+                      label: 'Kontynuuj z Google',
+                      onTap: () {}, // Module 2
+                    ),
+                    const SizedBox(height: 12),
+                    _AuthButton(
+                      icon: Icons.apple,
+                      label: 'Kontynuuj z Apple',
+                      onTap: () {}, // Module 2
+                    ),
+                    const SizedBox(height: 24),
 
-              // ── Auth buttons (Module 2 will wire Firebase) ─────────────────
-              _AuthButton(
-                icon: Icons.email_outlined,
-                label: 'Kontynuuj z Email',
-                onTap: () => context.go(AppRoutes.register),
-              ),
-              const SizedBox(height: 12),
-              _AuthButton(
-                icon: Icons.g_mobiledata,
-                label: 'Kontynuuj z Google',
-                onTap: () {}, // Module 2
-              ),
-              const SizedBox(height: 12),
-              _AuthButton(
-                icon: Icons.apple,
-                label: 'Kontynuuj z Apple',
-                onTap: () {}, // Module 2
-              ),
-              const SizedBox(height: 24),
-
-              // ── Skip auth (testing / no-account flow) ─────────────────────
-              Center(
-                child: TextButton(
-                  onPressed: () => context.go(AppRoutes.inventory),
-                  child: const Text('Pomiń na razie'),
+                    // Skip auth (tryb gościa / testy)
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          ref.read(isGuestProvider.notifier).state = true;
+                          context.go(AppRoutes.inventory);
+                        },
+                        child: const Text('Pomiń na razie'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

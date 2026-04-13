@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — shopping_provider.dart
-// Riverpod providers for Shopping List (sqflite backend).
-// ──────────────────────────────────────────────────────────────────────────────
+// Providery Riverpod dla listy zakupów (SQLite).
 
 import 'dart:async';
 
@@ -16,8 +13,7 @@ part 'shopping_provider.g.dart';
 
 const _uuid = Uuid();
 
-// ── Repository (inline for simplicity in Module 1) ───────────────────────────
-
+// Repozytorium (wersja uproszczona pod Moduł 1).
 class _ShoppingRepository {
   Database get _db => IsarService.instance;
   final _controller = StreamController<List<ShoppingItem>>.broadcast();
@@ -60,10 +56,7 @@ class _ShoppingRepository {
   void dispose() => _controller.close();
 }
 
-// ── Global repository instance ────────────────────────────────────────────────
 final _repo = _ShoppingRepository();
-
-// ── Stream provider ───────────────────────────────────────────────────────────
 
 @riverpod
 Stream<List<ShoppingItem>> shoppingItems(ShoppingItemsRef ref) {
@@ -71,8 +64,7 @@ Stream<List<ShoppingItem>> shoppingItems(ShoppingItemsRef ref) {
   return _repo.watchUnchecked();
 }
 
-// ── Notifier ──────────────────────────────────────────────────────────────────
-
+// Notifier do zarządzania listą zakupów.
 @riverpod
 class ShoppingNotifier extends _$ShoppingNotifier {
   @override
@@ -97,6 +89,7 @@ class ShoppingNotifier extends _$ShoppingNotifier {
     ));
   }
 
+  // Dodaje brakujące składniki z przepisów
   Future<void> addMissingIngredient({
     required String name,
     required double requiredAmount,

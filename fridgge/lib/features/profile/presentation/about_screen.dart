@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — about_screen.dart
-// Legal attributions required by Open Food Facts (ODbL) and USDA terms.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran "O aplikacji": źródła danych (Open Food Facts, USDA) i licencje.
 
 import 'package:flutter/material.dart';
 
@@ -18,7 +15,7 @@ class AboutScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ── App header ────────────────────────────────────────────────────
+          // Nagłówek aplikacji
           Center(
             child: Column(
               children: [
@@ -49,7 +46,7 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 32),
 
-          // ── Data sources ──────────────────────────────────────────────────
+          // Źródła danych
           Text(
             'ŹRÓDŁA DANYCH',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -88,7 +85,7 @@ class AboutScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
           Text(
-            'TECHNOLOGIE AI (ON-DEVICE)',
+            'ZAAWANSOWANE TECHNOLOGIE (ON-DEVICE)',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: AppColors.textTertiary,
                   letterSpacing: 1.2,

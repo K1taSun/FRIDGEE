@@ -1,6 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — profile_screen.dart
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran profilu użytkownika i ustawienia.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -18,12 +16,13 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
           children: [
             Text('Profil', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 24),
 
-            // ── Avatar placeholder ─────────────────────────────────────────
+            // Avatar placeholder
             Center(
               child: Column(
                 children: [
@@ -56,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // ── Settings sections ──────────────────────────────────────────
+            // Sekcje ustawień
             _SectionHeader('Wygląd'),
             _SettingsTile(
               icon: Icons.dark_mode_outlined,

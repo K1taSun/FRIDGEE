@@ -6,16 +6,28 @@ part of 'auth_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authStateHash() => r'27254fde1dfdca7a85bcd59b9500a093e8174473';
+String _$authRepositoryHash() => r'e3b22fd7863ea1be0b322870da43112c60f80087';
 
-/// Watches the Firebase auth state.
-/// Returns [true] when a user is signed in, [false] otherwise.
-///
-/// TODO (Module 2): Replace stub with FirebaseAuth.instance.authStateChanges().
-///
-/// Copied from [authState].
+/// See also [authRepository].
+@ProviderFor(authRepository)
+final authRepositoryProvider = AutoDisposeProvider<AuthRepository>.internal(
+  authRepository,
+  name: r'authRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$authRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepository>;
+String _$authStateHash() => r'd8eb17123e8971f9b8086bb415a4b2bde52779e2';
+
+/// See also [authState].
 @ProviderFor(authState)
-final authStateProvider = AutoDisposeStreamProvider<bool>.internal(
+final authStateProvider = AutoDisposeStreamProvider<User?>.internal(
   authState,
   name: r'authStateProvider',
   debugGetCreateSourceHash:
@@ -26,6 +38,22 @@ final authStateProvider = AutoDisposeStreamProvider<bool>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AuthStateRef = AutoDisposeStreamProviderRef<bool>;
+typedef AuthStateRef = AutoDisposeStreamProviderRef<User?>;
+String _$authControllerHash() => r'074cdf46723c13778d46234dcdce612a6f8b7b6a';
+
+/// See also [AuthController].
+@ProviderFor(AuthController)
+final authControllerProvider =
+    AutoDisposeAsyncNotifierProvider<AuthController, void>.internal(
+  AuthController.new,
+  name: r'authControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$authControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$AuthController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

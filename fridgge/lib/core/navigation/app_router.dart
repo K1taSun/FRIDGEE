@@ -1,14 +1,12 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — app_router.dart
-// Declarative navigation using go_router with StatefulShellRoute for
-// tab-based navigation that preserves scroll and state per branch.
-// ──────────────────────────────────────────────────────────────────────────────
+// Konfiguracja nawigacji opartej na GoRouter.
+// Wykorzystujemy StatefulShellRoute do obsługi dolnego paska nawigacji (BottomNavBar),
+// co pozwala na zachowanie stanu każdej zakładki (np. przeskoczenie do innej i powrót).
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// import '../../features/auth/domain/auth_provider.dart';
+import '../../features/auth/domain/auth_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/inventory/presentation/inventory_screen.dart';
@@ -22,8 +20,7 @@ import 'main_scaffold.dart';
 
 part 'app_router.g.dart';
 
-// ── Route path constants ──────────────────────────────────────────────────────
-
+// Stałe tras aplikacji — zapobiegają błędom literowym w kodzie.
 abstract final class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
@@ -36,32 +33,32 @@ abstract final class AppRoutes {
   static const String about = '/profile/about';
 }
 
-// ── Router provider ───────────────────────────────────────────────────────────
-
 @riverpod
 GoRouter goRouter(GoRouterRef ref) {
-  // Watch auth state for redirect logic (Module 2 will wire real Firebase auth)
-  // final authState = ref.watch(authStateProvider);
+  // Obserwujemy stan autoryzacji. GoRouter odświeży nawigację automatycznie,
+  // gdy zmieni się stan authStateProvider.
+  final authState = ref.watch(authStateProvider);
+  final isGuest = ref.watch(isGuestProvider);
 
   return GoRouter(
     initialLocation: AppRoutes.inventory,
     debugLogDiagnostics: true,
 
-    // ── Auth redirect ────────────────────────────────────────────────────────
+    // Logika przekierowań (Guard).
+    // Jeśli użytkownik nie jest zalogowany i nie jest na stronie auth -> wyrzuć go do logowania.
     redirect: (context, state) {
-      // final isAuthenticated = authState.valueOrNull ?? false;
-      // final isOnAuthRoute =
-      //     state.matchedLocation == AppRoutes.login ||
-      //     state.matchedLocation == AppRoutes.register;
+      final isAuthenticated = authState.valueOrNull != null || isGuest;
+      final isOnAuthRoute =
+          state.matchedLocation == AppRoutes.login ||
+          state.matchedLocation == AppRoutes.register;
 
-      // TODO (Module 2): Uncomment to enable auth gate
-      // if (!isAuthenticated && !isOnAuthRoute) return AppRoutes.login;
-      // if (isAuthenticated && isOnAuthRoute) return AppRoutes.inventory;
+      if (!isAuthenticated && !isOnAuthRoute) return AppRoutes.login;
+      if (isAuthenticated && isOnAuthRoute) return AppRoutes.inventory;
       return null;
     },
 
     routes: [
-      // ── Auth routes ────────────────────────────────────────────────────────
+      // Trasy Autoryzacji (poza głównym rusztowaniem z menu)
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
@@ -71,12 +68,13 @@ GoRouter goRouter(GoRouterRef ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
 
-      // ── Shell (tab navigation) routes ──────────────────────────────────────
+      // StatefulShellRoute tworzy "kontener" dla zakładek.
+      // Każdy branch reprezentuje oddzielny stos nawigacji.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             MainScaffold(navigationShell: navigationShell),
         branches: [
-          // Tab 0 — Magazyn (Inventory)
+          // Branch 0: Magazyn
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -88,7 +86,7 @@ GoRouter goRouter(GoRouterRef ref) {
             ],
           ),
 
-          // Tab 1 — Skaner (Scanner)
+          // Branch 1: Skaner
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -100,7 +98,7 @@ GoRouter goRouter(GoRouterRef ref) {
             ],
           ),
 
-          // Tab 2 — Przepisy (Recipes)
+          // Branch 2: Przepisy (z trasą podrzędną dla szczegółów)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -120,7 +118,7 @@ GoRouter goRouter(GoRouterRef ref) {
             ],
           ),
 
-          // Tab 3 — Lista Zakupów (Shopping)
+          // Branch 3: Lista Zakupów
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -132,7 +130,7 @@ GoRouter goRouter(GoRouterRef ref) {
             ],
           ),
 
-          // Tab 4 — Profil (Profile)
+          // Branch 4: Profil
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -153,7 +151,7 @@ GoRouter goRouter(GoRouterRef ref) {
       ),
     ],
 
-    // ── Error page ────────────────────────────────────────────────────────────
+    // Obsługa stron, które nie istnieją (404)
     errorBuilder: (context, state) => Scaffold(
       backgroundColor: const Color(0xFF121212),
       body: Center(

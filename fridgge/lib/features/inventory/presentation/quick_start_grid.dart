@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — quick_start_grid.dart
-// Onboarding grid of preset products — one tap adds to inventory.
-// ──────────────────────────────────────────────────────────────────────────────
+// Grid produktów "szybkiego startu" — kliknięcie dodaje do bazy.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

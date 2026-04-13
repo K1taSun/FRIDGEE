@@ -1,30 +1,19 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — product_item.dart
-// Domain model for pantry/fridge/freezer items.
-// Stored locally via sqflite. Synced to Firebase Firestore in Module 2.
-// ──────────────────────────────────────────────────────────────────────────────
+// Model produktu w ekwipunku (zapasy).
 
-// ── Enumerations ──────────────────────────────────────────────────────────────
-
-/// Unit of measurement for a product's quantity.
 enum StorageUnit {
-  szt,   // pieces / sztuki
-  g,     // grams / gramy
-  ml,    // millilitres / mililitry
-  kg,    // kilograms / kilogramy
-  l,     // litres / litry
+  szt, // Sztuki
+  g,   // Gramy
+  ml,  // Mililitry
+  kg,  // Kilogramy
+  l,   // Litry
 }
 
-/// Physical location where the product is stored.
 enum StorageLocation {
   fridge,   // Lodówka
   freezer,  // Zamrażarka
   pantry,   // Spiżarnia
 }
 
-// ── Domain Entity ─────────────────────────────────────────────────────────────
-
-/// A product stored in the user's inventory.
 class ProductItem {
   ProductItem({
     this.dbId,
@@ -42,46 +31,19 @@ class ProductItem {
     this.isConsumed = false,
   });
 
-  /// SQLite auto-increment primary key (null before first insert).
-  final int? dbId;
-
-  /// UUID v4 — stable identifier used for Firebase Firestore sync.
-  final String uuid;
-
-  /// Display name of the product.
-  final String name;
-
-  /// Numeric quantity (e.g. 1.5 kg, 200 g).
-  final double quantity;
-
-  /// Unit of measurement.
-  final StorageUnit unit;
-
-  /// Expiry / best-before date (core sorting field).
-  final DateTime expiryDate;
-
-  /// Date when the item was added to the inventory.
-  final DateTime addedDate;
-
-  /// Physical storage location.
-  final StorageLocation storageLocation;
-
-  /// EAN barcode string (nullable — manual entries have none).
-  final String? barcode;
-
-  /// URL of the product image.
-  final String? imageUrl;
-
-  /// Optional category tag (e.g. "Nabiał", "Warzywa").
-  final String? category;
-
-  /// Calories per 100 g/ml (from Open Food Facts or USDA).
-  final double? caloriesPer100g;
-
-  /// Whether the product has been consumed (soft-delete).
-  final bool isConsumed;
-
-  // ── Factory constructor ──────────────────────────────────────────────────────
+  final int? dbId;            // Klucz SQLite
+  final String uuid;          // ID do synchronizacji
+  final String name;          // Nazwa wyświetlana
+  final double quantity;      // Ilość
+  final StorageUnit unit;     // Jednostka
+  final DateTime expiryDate;  // Data ważności
+  final DateTime addedDate;   // Data dodania
+  final StorageLocation storageLocation; // Lokalizacja
+  final String? barcode;      // Kod EAN
+  final String? imageUrl;     // Link do zdjęcia
+  final String? category;     // Kategoria (np. Nabiał)
+  final double? caloriesPer100g; // Kalorie
+  final bool isConsumed;      // Czy zużyty (soft-delete)
 
   factory ProductItem.create({
     required String uuid,
@@ -109,8 +71,6 @@ class ProductItem {
       caloriesPer100g: caloriesPer100g,
     );
   }
-
-  // ── Immutable copy ────────────────────────────────────────────────────────────
 
   ProductItem copyWith({
     int? dbId,
@@ -144,8 +104,7 @@ class ProductItem {
     );
   }
 
-  // ── SQLite serialization ──────────────────────────────────────────────────────
-
+  // Serializacja SQLite
   Map<String, dynamic> toMap() => {
         if (dbId != null) 'id': dbId,
         'uuid': uuid,
@@ -186,9 +145,7 @@ class ProductItem {
       'ProductItem($uuid, $name, exp: $expiryDate, loc: $storageLocation)';
 }
 
-// ── Quick Start presets ───────────────────────────────────────────────────────
-
-/// Predefined products for the Quick Start onboarding grid.
+// Dane "szybkiego startu"
 class QuickStartPreset {
   const QuickStartPreset({
     required this.name,

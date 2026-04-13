@@ -1,9 +1,9 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // Fridgge — recipe.dart
-// Freezed data classes for AI-generated recipes.
-// JSON de/serialization for Gemini API response mapping.
+// Klasy danych dla generowanych przepisów.
+// Mapowanie odpowiedzi JSON z serwera.
 //
-// Code generation: dart run build_runner build --delete-conflicting-outputs
+// Generowanie kodu: dart run build_runner build --delete-conflicting-outputs
 // ──────────────────────────────────────────────────────────────────────────────
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -50,7 +50,7 @@ class Recipe with _$Recipe {
     /// Estimated preparation time in minutes.
     required int preparationTime,
 
-    /// URL of the recipe image (placeholder or AI-generated).
+    /// URL obrazka (placeholder lub wygenerowany).
     @Default('') String imageUrl,
 
     /// List of required ingredients with inventory match status.
@@ -89,7 +89,7 @@ extension RecipeHelpers on Recipe {
 
 // ── LLM Response wrapper ──────────────────────────────────────────────────────
 
-/// The top-level JSON structure expected from the AI (Gemini / OpenAI).
+/// Struktura JSON odpowiedzi z serwera.
 ///
 /// System prompt instructs the model to return:
 /// ```json

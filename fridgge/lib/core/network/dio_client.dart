@@ -30,7 +30,7 @@ abstract final class DioClient {
   static Dio get gemini => _build(
         baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
         connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 60), // AI can be slow
+        receiveTimeout: const Duration(seconds: 60), // Rozbudowane zapytania mogą trwać dłużej
       );
 
   // ── Factory ───────────────────────────────────────────────────────────────────

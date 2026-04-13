@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — app.dart
-// Root widget: wires up MaterialApp.router with the GoRouter and dark theme.
-// ──────────────────────────────────────────────────────────────────────────────
+// Root aplikacji: MaterialApp z routerem i motywem.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,12 +17,12 @@ class FridggeApp extends ConsumerWidget {
       title: 'Fridgge',
       debugShowCheckedModeBanner: false,
 
-      // ── Theme ──────────────────────────────────────────────────────────────
+      // Motyw (zawsze dark w Module 1)
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark, // Always dark in Module 1; user toggle in Module 7
+      themeMode: ThemeMode.dark,
 
-      // ── Routing ────────────────────────────────────────────────────────────
+      // Routing
       routerConfig: router,
     );
   }

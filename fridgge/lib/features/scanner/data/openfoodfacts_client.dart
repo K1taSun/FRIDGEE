@@ -1,15 +1,9 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — openfoodfacts_client.dart
-// Primary barcode lookup — Open Food Facts REST API.
-// No API key required. Attribution: "Powered by Open Food Facts" (ODbL).
-// Full implementation in Module 4.
-// ──────────────────────────────────────────────────────────────────────────────
+// Klient API Open Food Facts (wyszukiwanie po kodzie kreskowym).
 
 import 'package:dio/dio.dart';
-
 import '../../../core/network/dio_client.dart';
 
-/// Product metadata returned by Open Food Facts.
+// Wynik wyszukiwania produktu w bazie OFF.
 class OffProductResult {
   const OffProductResult({
     required this.found,
@@ -29,13 +23,7 @@ class OffProductResult {
 class OpenFoodFactsClient {
   final Dio _dio = DioClient.openFoodFacts;
 
-  /// Looks up a product by [barcode] (EAN-8 or EAN-13).
-  ///
-  /// Returns [OffProductResult(found: false)] when:
-  ///   - Product not in OFF database → caller should try [UsdaFoodDataClient]
-  ///   - Network error → caller should handle gracefully
-  ///
-  /// TODO (Module 4): Full implementation with error handling.
+  // Pobiera dane produktu na podstawie kodu kreskowego.
   Future<OffProductResult> lookupBarcode(String barcode) async {
     try {
       final response = await _dio.get(

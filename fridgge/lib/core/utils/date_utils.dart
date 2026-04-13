@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — date_utils.dart
-// Human-readable date formatting helpers.
-// ──────────────────────────────────────────────────────────────────────────────
+// Helpery do formatowania dat.
 
 import 'package:intl/intl.dart';
 
@@ -10,22 +7,16 @@ abstract final class FridggeDateUtils {
   static final _dayMonth = DateFormat('d MMM', 'pl_PL');
   static final _monthYear = DateFormat('MM/yyyy', 'pl_PL');
 
-  /// Formats a date as "14 kwi 2025"
+  // "14 kwi 2025"
   static String formatFull(DateTime date) => _dayMonthYear.format(date);
 
-  /// Formats a date as "14 kwi"
+  // "14 kwi"
   static String formatShort(DateTime date) => _dayMonth.format(date);
 
-  /// Formats a date as "04/2025" (for product OCR / MM/YY labels)
+  // "04/2025" (pod OCR / etykiety MM/YY)
   static String formatMonthYear(DateTime date) => _monthYear.format(date);
 
-  /// Returns a human-readable expiry label for product cards.
-  ///
-  /// Examples:
-  ///   - "Przeterminowany 3 dni temu"
-  ///   - "Ważne do dziś"
-  ///   - "Ważne 2 dni"
-  ///   - "Ważne do 14 kwi"
+  // Status ważności dla kart
   static String expiryLabel(DateTime expiryDate) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -42,13 +33,11 @@ abstract final class FridggeDateUtils {
     };
   }
 
-  /// Parses OCR-detected date strings into [DateTime?].
-  ///
-  /// Supported formats: DD/MM/YYYY, DD.MM.YYYY, MM/YY, MM/YYYY
+  // Parsowanie dat z OCR
   static DateTime? parseOcrDate(String raw) {
     final cleaned = raw.trim();
 
-    // DD/MM/YYYY or DD.MM.YYYY
+    // DD/MM/YYYY lub DD.MM.YYYY
     final dmyRegex = RegExp(r'(\d{1,2})[./](\d{1,2})[./](\d{4})');
     final dmyMatch = dmyRegex.firstMatch(cleaned);
     if (dmyMatch != null) {
@@ -58,7 +47,7 @@ abstract final class FridggeDateUtils {
       );
     }
 
-    // MM/YY (e.g. 04/26)
+    // MM/YY (np. 04/26)
     final myShortRegex = RegExp(r'^(\d{1,2})/(\d{2})$');
     final myShortMatch = myShortRegex.firstMatch(cleaned);
     if (myShortMatch != null) {

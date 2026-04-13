@@ -1,8 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — add_product_sheet.dart
-// BottomSheet for confirming/editing a scanned product before saving.
-// Placeholder — full implementation in Module 4.
-// ──────────────────────────────────────────────────────────────────────────────
+// Arkusz potwierdzania zeskanowanego produktu przed zapisem.
+// Moduł 4: Pełna logika OCR/Barcode.
 
 import 'package:flutter/material.dart';
 

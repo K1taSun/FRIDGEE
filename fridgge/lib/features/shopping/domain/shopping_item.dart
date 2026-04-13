@@ -1,16 +1,11 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — shopping_item.dart
-// Domain model and sqflite DAO for the Shopping List.
-// ──────────────────────────────────────────────────────────────────────────────
+// Model elementu na liście zakupów.
 
-/// Source: how the item was added to the shopping list.
 enum ShoppingItemSource {
-  manual,
-  recipeMatch,
-  inventoryReorder,
+  manual,            // Dodany ręcznie
+  recipeMatch,       // Z brakujących składników przepisu
+  inventoryReorder,  // Automatyczne uzupełnienie zapasu
 }
 
-/// An item on the shopping list.
 class ShoppingItem {
   ShoppingItem({
     this.dbId,
@@ -32,7 +27,7 @@ class ShoppingItem {
   final String unit;
   final DateTime addedDate;
   final ShoppingItemSource source;
-  final bool isChecked;
+  final bool isChecked; // Odhaczony w sklepie
   final String? note;
   final String? recipeId;
 

@@ -37,8 +37,8 @@ dependencies:
   sign_in_with_apple: ^6.1.3
 
   # ── Scanner & Vision (on-device) ─────────────────────────────────────────────
-  mobile_scanner: ^6.0.5
-  google_mlkit_text_recognition: ^0.13.1
+  mobile_scanner: ^7.2.0
+  google_mlkit_text_recognition: ^0.15.1
 
   # ── Data Classes ─────────────────────────────────────────────────────────────
   freezed_annotation: ^2.4.4

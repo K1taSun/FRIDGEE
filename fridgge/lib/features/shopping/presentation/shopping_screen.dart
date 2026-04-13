@@ -1,6 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — shopping_screen.dart
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran listy zakupów.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +19,7 @@ class ShoppingScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
               floating: true,
@@ -65,12 +64,15 @@ class ShoppingScreen extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddItemSheet(context, ref),
-        icon: const Icon(Icons.edit_outlined),
-        label: const Text('Wpisz'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.background,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 104),
+        child: FloatingActionButton.extended(
+          onPressed: () => _showAddItemSheet(context, ref),
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('Wpisz'),
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.background,
+        ),
       ),
     );
   }
@@ -83,50 +85,52 @@ class ShoppingScreen extends ConsumerWidget {
       builder: (_) => Padding(
         padding: EdgeInsets.fromLTRB(
             16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: SizedBox(
-                  width: 36,
-                  height: 4,
-                  child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          color: AppColors.border,
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(2))))),
-            ),
-            const SizedBox(height: 16),
-            Text('Dodaj produkt',
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 16),
-            TextField(
-              controller: nameCtrl,
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: 'Nazwa produktu...',
-                prefixIcon: Icon(Icons.shopping_basket_outlined),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(
+                child: SizedBox(
+                    width: 36,
+                    height: 4,
+                    child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            color: AppColors.border,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(2))))),
               ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () {
-                  if (nameCtrl.text.isNotEmpty) {
-                    ref.read(shoppingNotifierProvider.notifier).addItem(
-                          name: nameCtrl.text,
-                          quantity: 1,
-                          unit: 'szt',
-                        );
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text('Dodaj do listy'),
+              const SizedBox(height: 16),
+              Text('Dodaj produkt',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Nazwa produktu...',
+                  prefixIcon: Icon(Icons.shopping_basket_outlined),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    if (nameCtrl.text.isNotEmpty) {
+                      ref.read(shoppingNotifierProvider.notifier).addItem(
+                            name: nameCtrl.text,
+                            quantity: 1,
+                            unit: 'szt',
+                          );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('Dodaj do listy'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,13 +1,9 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — scanner_provider.dart
-// Stub — full implementation in Module 4.
-// ──────────────────────────────────────────────────────────────────────────────
+// Stan i tryb skanera.
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'scanner_provider.g.dart';
 
-/// Tracks the current scanner mode.
 enum ScannerMode { barcode, ocr, manual }
 
 @riverpod

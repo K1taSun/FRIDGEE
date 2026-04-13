@@ -1,20 +1,23 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — main.dart
-// Entry point: initializes services and launches the ProviderScope.
-// ──────────────────────────────────────────────────────────────────────────────
+// Fridgge — Punkt wejścia aplikacji.
+// Odpowiada za konfigurację środowiska, inicjalizację bazy danych i start UI.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/database/isar_service.dart';
 import 'app.dart';
 
 Future<void> main() async {
+  // Wymagane, jeśli używamy pluginów przed runApp()
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicjalizacja formatowania dat dla polskiej lokalizacji
+  await initializeDateFormatting('pl_PL', null);
 
-  // ── System UI overlay style ─────────────────────────────────────────────────
+  // Konfiguracja wyglądu paska stanu i nawigacji systemowej (Android/iOS)
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -24,30 +27,26 @@ Future<void> main() async {
     ),
   );
 
-  // ── Preferred orientations ───────────────────────────────────────────────────
+  // Blokada orientacji pionowej — ważne dla stabilności layoutu skanera
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // ── Load environment variables (.env) ────────────────────────────────────────
-  // .env file contains USDA_API_KEY and GEMINI_API_KEY.
-  // Never commit .env — use .env.example as a template.
+  // Załadowanie zmiennych środowiskowych (np. klucze API do USDA)
   await dotenv.load(fileName: '.env').catchError((_) {
-    // .env file may not exist in CI or when --dart-define is used instead.
-    debugPrint('⚠️  .env file not found — falling back to --dart-define values.');
+    debugPrint('⚠️ Brak pliku .env — system przejdzie na wartości domyślne.');
   });
 
-  // ── Initialize Isar (local database) ────────────────────────────────────────
-  // Isar is initialized before Firebase so the app works fully offline.
+  // Start lokalnej bazy danych SQLite (używamy sqflite)
+  // Robimy to przed startem UI, aby dane były natychmiast dostępne.
   await IsarService.initialize();
 
-  // ── Firebase (requires google-services.json / GoogleService-Info.plist) ──────
-  // TODO (Module 2): Uncomment after adding Firebase config files.
+  // Inicjalizacja Firebase (zaplanowana na Moduł 2)
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // ── Launch app ───────────────────────────────────────────────────────────────
   runApp(
+    // ProviderScope jest wymagany przez Riverpod do zarządzania stanem
     const ProviderScope(
       child: FridggeApp(),
     ),

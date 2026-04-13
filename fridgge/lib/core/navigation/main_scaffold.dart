@@ -1,7 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — main_scaffold.dart
-// Shell widget wrapping all tab screens with a custom floating BottomNavBar.
-// ──────────────────────────────────────────────────────────────────────────────
+// Główny szkielet aplikacji (Scaffold) widoczny po zalogowaniu.
+// Zawiera system nawigacji (BottomNavBar) zintegrowany ze StatefulNavigationShell.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,9 +10,11 @@ import '../theme/app_theme.dart';
 class MainScaffold extends StatelessWidget {
   const MainScaffold({super.key, required this.navigationShell});
 
+  // StatefulNavigationShell pozwala na przełączanie się między branchami (zakładkami)
+  // przy jednoczesnym zachowaniu ich stanu wewnętrznego.
   final StatefulNavigationShell navigationShell;
 
-  // ── Bottom nav tab definitions ──────────────────────────────────────────────
+  // Definicje zakładek – ikony i etykiety używane w menu.
   static const _tabs = [
     _NavTab(label: 'Magazyn', icon: Icons.kitchen_outlined, activeIcon: Icons.kitchen),
     _NavTab(label: 'Skaner', icon: Icons.qr_code_scanner_outlined, activeIcon: Icons.qr_code_scanner),
@@ -26,7 +26,9 @@ class MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Body slides under the floating nav bar
+      // extendBody: true pozwala na renderowanie zawartości pod przezroczystym paskiem menu,
+      // co daje efekt "pływającego" interfejsu.
+      extendBody: true,
       body: navigationShell,
       bottomNavigationBar: _FloatingBottomNav(
         currentIndex: navigationShell.currentIndex,
@@ -36,17 +38,17 @@ class MainScaffold extends StatelessWidget {
     );
   }
 
+  // Funkcja zmiany zakładki
   void _onTap(int index) {
     navigationShell.goBranch(
       index,
-      // Re-tap current tab → scroll to top / pop to root
+      // Jeśli użytkownik kliknie w aktualnie otwartą zakładkę, wróć do jej strony głównej
       initialLocation: index == navigationShell.currentIndex,
     );
   }
 }
 
-// ── Floating Bottom Navigation Bar ──────────────────────────────────────────
-
+// Widget tworzący autorski, "pływający" pasek nawigacji.
 class _FloatingBottomNav extends StatelessWidget {
   const _FloatingBottomNav({
     required this.currentIndex,
@@ -60,6 +62,7 @@ class _FloatingBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // SafeArea zapobiega ucinaniu paska na urządzeniach z "notchem" (np. iPhone).
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -100,8 +103,7 @@ class _FloatingBottomNav extends StatelessWidget {
   }
 }
 
-// ── Individual nav item ──────────────────────────────────────────────────────
-
+// Pojedyncza ikona w dole paska z animacją przejścia.
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.tab,
@@ -124,10 +126,11 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ── Scanner tab gets a special circle highlight ──────────────────
+            // Jeśli jest to Skaner (centralny przycisk), renderujemy specjalne tło.
             if (tab.label == 'Skaner')
               _ScannerIconBackground(isActive: isActive, icon: tab.activeIcon)
             else ...[
+              // AnimatedSwitcher zapewnia płynną zmianę ikony z pustej na pełną.
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
@@ -138,6 +141,7 @@ class _NavItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
+              // AnimatedDefaultTextStyle animuje kolor i grubość opisu.
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
@@ -155,6 +159,7 @@ class _NavItem extends StatelessWidget {
   }
 }
 
+// Wyróżnienie ikony skanera
 class _ScannerIconBackground extends StatelessWidget {
   const _ScannerIconBackground({required this.isActive, required this.icon});
 
@@ -190,8 +195,7 @@ class _ScannerIconBackground extends StatelessWidget {
   }
 }
 
-// ── Data class ───────────────────────────────────────────────────────────────
-
+// Klasa pomocnicza do definicji zakładki.
 class _NavTab {
   const _NavTab({
     required this.label,

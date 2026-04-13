@@ -1,7 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — product_repository.dart
-// CRUD operations for the products table (sqflite).
-// ──────────────────────────────────────────────────────────────────────────────
+// Klasa Repository — odpowiada za bezpośredni dostęp do danych w SQLite.
+// Izoluje logikę bazodanową od reszty aplikacji.
 
 import 'dart:async';
 
@@ -14,26 +12,26 @@ import '../domain/product_item.dart';
 const _uuid = Uuid();
 
 class ProductRepository {
+  // Pobieramy instancję bazy danych z serwisu globalnego.
   Database get _db => IsarService.instance;
 
-  // ── Streams ───────────────────────────────────────────────────────────────────
-  // SQLite doesn't natively support change streams. We use a StreamController
-  // that we broadcast after every write. Riverpod watches this stream.
-
+  // StreamController pozwala "nadawać" (broadcast) informację o zmianach w bazie.
+  // sqflite nie oferuje natywnych strumieni, więc implementujemy je manualnie,
+  // aby UI mogło automatycznie odświeżać się po każdej operacji CRUD.
   final _controller = StreamController<List<ProductItem>>.broadcast();
 
+  // Zwraca strumień aktywnych produktów. Od razu po zasubskrybowaniu wysyła aktualne dane.
   Stream<List<ProductItem>> watchActiveProducts() {
-    // Emit immediately and on every write
     _fetchActive().then(_controller.add);
     return _controller.stream;
   }
 
+  // Pomocnicza funkcja do wywoływania odświeżenia we wszystkich subskrybentach strumienia.
   void _notifyListeners() {
     _fetchActive().then(_controller.add);
   }
 
-  // ── Read ──────────────────────────────────────────────────────────────────────
-
+  // Pobiera aktywne produkty (niezużyte) posortowane chronologicznie wg daty ważności.
   Future<List<ProductItem>> _fetchActive() async {
     final maps = await _db.query(
       'products',
@@ -41,6 +39,7 @@ class ProductRepository {
       whereArgs: [0],
       orderBy: 'expiry_date ASC',
     );
+    // Konwertujemy mapy z SQLite na obiekty Dartowe (ProductItem).
     return maps.map(ProductItem.fromMap).toList();
   }
 
@@ -52,8 +51,8 @@ class ProductRepository {
     return maps.isEmpty ? null : ProductItem.fromMap(maps.first);
   }
 
-  // ── Create / Update ───────────────────────────────────────────────────────────
-
+  // Zapisuje lub aktualizuje produkt. 
+  // conflictAlgorithm: replace — jeśli produkt o takim samym ID już istnieje, zostanie zastąpiony.
   Future<int> save(ProductItem product) async {
     final uuid = product.uuid.isEmpty ? _uuid.v4() : product.uuid;
     final map = product.copyWith().toMap();
@@ -64,10 +63,11 @@ class ProductRepository {
       map,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    _notifyListeners();
+    _notifyListeners(); // Powiadom strumień o zmianie
     return id;
   }
 
+  // Wstawianie wielu produktów jednocześnie (Batch) — znacznie wydajniejsze przy imporcie.
   Future<void> saveAll(List<ProductItem> products) async {
     final batch = _db.batch();
     for (final p in products) {
@@ -82,6 +82,8 @@ class ProductRepository {
     _notifyListeners();
   }
 
+  // Logika dodawania produktu z "Szybkiego Startu".
+  // Oblicza datę ważności na podstawie dzisiejszej daty + offsetu zdefiniowanego w presecie.
   Future<int> addFromPreset(QuickStartPreset preset) {
     final item = ProductItem.create(
       uuid: _uuid.v4(),
@@ -96,8 +98,7 @@ class ProductRepository {
     return save(item);
   }
 
-  // ── Mark consumed (soft delete) ───────────────────────────────────────────────
-
+  // 'Miękkie' usunięcie produktu (oznaczenie flagi is_consumed).
   Future<void> markConsumed(int id) async {
     await _db.update(
       'products',
@@ -108,13 +109,13 @@ class ProductRepository {
     _notifyListeners();
   }
 
-  // ── Hard delete ───────────────────────────────────────────────────────────────
-
+  // Fizyczne usunięcie rekordu z bazy danych.
   Future<int> delete(int id) async {
     final count = await _db.delete('products', where: 'id = ?', whereArgs: [id]);
     _notifyListeners();
     return count;
   }
 
+  // Zamknięcie kontrolera strumienia, aby uniknąć wycieków pamięci.
   void dispose() => _controller.close();
 }

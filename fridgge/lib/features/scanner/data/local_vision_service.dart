@@ -1,6 +1,6 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // Fridgge — local_vision_service.dart
-// On-device AI: OCR (ML Kit) + object recognition (MobileNetV2/YOLOv11).
+// Przetwarzanie na urządzeniu: OCR (ML Kit) + rozpoznawanie obiektów.
 // 100% offline — no network calls for vision processing.
 // Full implementation in Module 4.
 // ──────────────────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ class LocalVisionService {
   ///   "Należy spożyć do", "Ważne do", "Najlepiej spożyć przed",
   ///   "Best before", "Use by", "BB:", "EXP:"
   ///
-  /// TODO (Module 4): Add MobileNetV2/YOLOv11 for produce recognition.
+  /// NOTE (Module 4): Add MobileNetV2/YOLOv11 for produce recognition.
   Future<OcrResult> recognizeLabel(String imagePath) async {
     try {
       final inputImage = InputImage.fromFilePath(imagePath);

@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — scanner_screen.dart
-// Placeholder — full implementation in Module 4.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran skanera (Module 4).
 
 import 'package:flutter/material.dart';
 
@@ -15,7 +12,6 @@ class ScannerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        bottom: false,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -36,7 +32,7 @@ class ScannerScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Camera viewfinder placeholder
+                      // Placeholder wizjera kamery
                       Container(
                         width: 260,
                         height: 260,
@@ -63,7 +59,6 @@ class ScannerScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Options row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

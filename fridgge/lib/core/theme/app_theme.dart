@@ -1,8 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — app_theme.dart
-// Full Material 3 ThemeData — dark (primary) and light (future).
-// Typography: Inter via google_fonts package.
-// ──────────────────────────────────────────────────────────────────────────────
+// Definicja motywu Material 3: Dark i Light.
+// Typografia: Inter (google_fonts).
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,13 +7,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 abstract final class AppTheme {
-  // ── Border radii (shared tokens) ────────────────────────────────────────────
+  // Border radii (tokeny)
   static const BorderRadius radiusSmall = BorderRadius.all(Radius.circular(8));
   static const BorderRadius radiusMedium = BorderRadius.all(Radius.circular(16));
   static const BorderRadius radiusLarge = BorderRadius.all(Radius.circular(24));
   static const BorderRadius radiusXL = BorderRadius.all(Radius.circular(32));
 
-  // ── Dark Theme ───────────────────────────────────────────────────────────────
+  // Motyw CIEMNY
   static ThemeData get dark {
     final base = ThemeData.dark();
     final textTheme = _buildTextTheme(base.textTheme);
@@ -44,7 +41,7 @@ abstract final class AppTheme {
       textTheme: textTheme,
       primaryTextTheme: textTheme,
 
-      // ── AppBar ──────────────────────────────────────────────────────────────
+      // AppBar
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
@@ -60,16 +57,16 @@ abstract final class AppTheme {
         actionsIconTheme: const IconThemeData(color: AppColors.textSecondary),
       ),
 
-      // ── Cards ────────────────────────────────────────────────────────────────
-      cardTheme: CardThemeData(
+      // Karty
+      cardTheme: const CardThemeData(
         color: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: const RoundedRectangleBorder(borderRadius: radiusMedium),
+        shape: RoundedRectangleBorder(borderRadius: radiusMedium),
         margin: EdgeInsets.zero,
       ),
 
-      // ── Buttons ──────────────────────────────────────────────────────────────
+      // Przyciski
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -110,7 +107,7 @@ abstract final class AppTheme {
         ),
       ),
 
-      // ── FAB ──────────────────────────────────────────────────────────────────
+      // FAB
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.background,
@@ -118,7 +115,7 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: radiusMedium),
       ),
 
-      // ── Bottom Navigation ─────────────────────────────────────────────────────
+      // Bottom Navigation
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
@@ -135,36 +132,36 @@ abstract final class AppTheme {
         type: BottomNavigationBarType.fixed,
       ),
 
-      // ── Input / TextField ─────────────────────────────────────────────────────
-      inputDecorationTheme: InputDecorationTheme(
+      // TextFieldy
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 14),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        border: const OutlineInputBorder(
+        labelStyle: TextStyle(color: AppColors.textSecondary),
+        border: OutlineInputBorder(
           borderRadius: radiusMedium,
           borderSide: BorderSide(color: AppColors.border),
         ),
-        enabledBorder: const OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: radiusMedium,
           borderSide: BorderSide(color: AppColors.border),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderRadius: radiusMedium,
           borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        errorBorder: const OutlineInputBorder(
+        errorBorder: OutlineInputBorder(
           borderRadius: radiusMedium,
           borderSide: BorderSide(color: AppColors.error),
         ),
-        focusedErrorBorder: const OutlineInputBorder(
+        focusedErrorBorder: OutlineInputBorder(
           borderRadius: radiusMedium,
           borderSide: BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
 
-      // ── Chip ─────────────────────────────────────────────────────────────────
+      // Chipy
       chipTheme: const ChipThemeData(
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.primarySubtle,
@@ -174,7 +171,7 @@ abstract final class AppTheme {
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       ),
 
-      // ── Dialog ───────────────────────────────────────────────────────────────
+      // Dialogi
       dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surfaceElevated,
         surfaceTintColor: Colors.transparent,
@@ -188,7 +185,7 @@ abstract final class AppTheme {
         ),
       ),
 
-      // ── Bottom Sheet ──────────────────────────────────────────────────────────
+      // Bottom Sheet
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surfaceElevated,
         surfaceTintColor: Colors.transparent,
@@ -201,14 +198,14 @@ abstract final class AppTheme {
         modalElevation: 0,
       ),
 
-      // ── Divider ───────────────────────────────────────────────────────────────
+      // Divider
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
         thickness: 1,
         space: 0,
       ),
 
-      // ── ListTile ──────────────────────────────────────────────────────────────
+      // ListTile
       listTileTheme: const ListTileThemeData(
         tileColor: Colors.transparent,
         iconColor: AppColors.textSecondary,
@@ -216,11 +213,11 @@ abstract final class AppTheme {
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
 
-      // ── Icon ─────────────────────────────────────────────────────────────────
+      // Ikony
       iconTheme: const IconThemeData(color: AppColors.textSecondary, size: 24),
       primaryIconTheme: const IconThemeData(color: AppColors.primary, size: 24),
 
-      // ── SnackBar ──────────────────────────────────────────────────────────────
+      // SnackBar
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppColors.surfaceElevated,
         contentTextStyle: TextStyle(color: AppColors.textPrimary),
@@ -229,7 +226,7 @@ abstract final class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
 
-      // ── Switch ────────────────────────────────────────────────────────────────
+      // Switche
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.background;
@@ -241,12 +238,12 @@ abstract final class AppTheme {
         }),
       ),
 
-      // ── Progress indicator ────────────────────────────────────────────────────
+      // Progress bar
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
       ),
 
-      // ── Tab bar ───────────────────────────────────────────────────────────────
+      // Tab bar
       tabBarTheme: const TabBarThemeData(
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textTertiary,
@@ -260,7 +257,7 @@ abstract final class AppTheme {
     );
   }
 
-  // ── Light Theme (mirrors dark for now — enabled via Module 7 user toggle) ─────
+  // Motyw JASNY (na razie mirror dark)
   static ThemeData get light => dark;
 
   // ── Text Theme (Inter via google_fonts) ─────────────────────────────────────

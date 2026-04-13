@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — product_card.dart
-// Product card widget with expiry color coding and swipe actions.
-// ──────────────────────────────────────────────────────────────────────────────
+// Karta produktu: status ważności (kolory) + swipe do zużycia.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,11 +49,11 @@ class ProductCard extends ConsumerWidget {
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              // ── Emoji / image ──────────────────────────────────────────────
+              // Emoji / ikona
               _ProductIcon(product: product, accentColor: accentColor),
               const SizedBox(width: 12),
 
-              // ── Name + meta ───────────────────────────────────────────────
+              // Nazwa i lokalizacja
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +79,7 @@ class ProductCard extends ConsumerWidget {
                 ),
               ),
 
-              // ── Expiry badge ──────────────────────────────────────────────
+              // Status ważności
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -112,8 +109,7 @@ class ProductCard extends ConsumerWidget {
       };
 }
 
-// ── Product icon ──────────────────────────────────────────────────────────────
-
+// Ikona produktu dopasowana do lokalizacji
 class _ProductIcon extends StatelessWidget {
   const _ProductIcon({required this.product, required this.accentColor});
 
@@ -145,8 +141,7 @@ class _ProductIcon extends StatelessWidget {
       };
 }
 
-// ── Location chip ─────────────────────────────────────────────────────────────
-
+// Chip miejsca przechowywania
 class _LocationChip extends StatelessWidget {
   const _LocationChip({required this.location});
 
@@ -178,8 +173,7 @@ class _LocationChip extends StatelessWidget {
   }
 }
 
-// ── Expiry badge ──────────────────────────────────────────────────────────────
-
+// Etykieta daty ważności
 class _ExpiryBadge extends StatelessWidget {
   const _ExpiryBadge({required this.status, required this.color});
 
@@ -213,8 +207,7 @@ class _ExpiryBadge extends StatelessWidget {
   }
 }
 
-// ── Dismiss background ────────────────────────────────────────────────────────
-
+// Tło przy swipe (oznaczanie jako zużyte)
 class _DismissBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

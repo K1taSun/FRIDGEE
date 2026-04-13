@@ -1,7 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — recipes_screen.dart
-// Placeholder — full AI recipe implementation in Module 5.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran przepisów (Module 5).
 
 import 'package:flutter/material.dart';
 
@@ -26,7 +23,7 @@ class RecipesScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Przepisy AI',
+                      'Przepisy',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 4),
@@ -58,12 +55,15 @@ class RecipesScreen extends StatelessWidget {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {},
-          icon: const Icon(Icons.auto_awesome_outlined),
-          label: const Text('Generuj przepisy'),
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.background,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(bottom: 104),
+          child: FloatingActionButton.extended(
+            onPressed: () {},
+            icon: const Icon(Icons.auto_awesome_outlined),
+            label: const Text('Generuj przepisy'),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.background,
+          ),
         ),
       ),
     );
@@ -94,7 +94,7 @@ class _RecipesTabPlaceholder extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
-              'Naciśnij „Generuj przepisy", aby Fridgge AI\nzaproponowało potrawę z Twoich składników.',
+              'Naciśnij „Generuj przepisy", aby system\nzaproponował potrawę z Twoich składników.',
               style: Theme.of(context)
                   .textTheme
                   .bodySmall

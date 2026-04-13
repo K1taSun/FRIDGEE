@@ -1,8 +1,4 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// Fridgge — recipe_detail_screen.dart
-// Placeholder — full implementation in Module 5.
-// Shows "Brak dopasowań" indicator for widget test coverage.
-// ──────────────────────────────────────────────────────────────────────────────
+// Ekran szczegółów przepisu (podgląd).
 
 import 'package:flutter/material.dart';
 
@@ -23,7 +19,6 @@ class RecipeDetailScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ── "No match" indicator (tested in widget test) ───────────────
               NoMatchIndicator(
                 ingredientName: 'Przykładowy składnik',
                 onAddToShoppingList: () {},
@@ -36,10 +31,7 @@ class RecipeDetailScreen extends StatelessWidget {
   }
 }
 
-// ── No Match Indicator ────────────────────────────────────────────────────────
-// Key UI component: shown when a recipe ingredient is missing from inventory.
-// Widget-tested in test/widget/no_match_indicator_test.dart
-
+// Marker braku składnika w magazynie (z opcją dodania do listy zakupów).
 class NoMatchIndicator extends StatelessWidget {
   const NoMatchIndicator({
     super.key,
@@ -75,7 +67,7 @@ class NoMatchIndicator extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // 🛒 + button — adds missing ingredient to shopping list
+          // Dodawanie do listy zakupów
           InkWell(
             key: const Key('add_to_shopping_btn'),
             onTap: onAddToShoppingList,
