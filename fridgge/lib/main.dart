@@ -1,4 +1,5 @@
-/* Odpowiada za konfigurację środowiska, inicjalizację bazy danych i start UI. */
+// Fridgge — Punkt wejścia aplikacji.
+// Odpowiada za konfigurację środowiska, inicjalizację bazy danych i start UI.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,7 @@ import 'app.dart';
 Future<void> main() async {
   // Wymagane, jeśli używamy pluginów przed runApp()
   WidgetsFlutterBinding.ensureInitialized();
-
+  
   // Inicjalizacja formatowania dat dla polskiej lokalizacji
   await initializeDateFormatting('pl_PL', null);
 

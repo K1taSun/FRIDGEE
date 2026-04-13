@@ -1,6 +1,5 @@
-/* Serwis zarządzający bazą danych SQLite (przy użyciu pakietu sqflite).
-Stosujemy podejście offline-first — aplikacja działa bez internetu, korzystając z lokalnej bazy.
-*/
+// Serwis zarządzający bazą danych SQLite (przy użyciu pakietu sqflite).
+// Stosujemy podejście offline-first — aplikacja działa bez internetu, korzystając z lokalnej bazy.
 
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -14,8 +13,7 @@ class IsarService {
 
   // Globalny dostęp do bazy danych. Metoda get rzuci błąd, jeśli zapomnimy o IsarService.initialize().
   static Database get instance {
-    assert(_db != null,
-        'Błąd: IsarService.initialize() musi być wywołane w main.dart.');
+    assert(_db != null, 'Błąd: IsarService.initialize() musi być wywołane w main.dart.');
     return _db!;
   }
 
@@ -75,11 +73,12 @@ class IsarService {
       )
     ''');
 
-    // Indeksy przyspieszają wyszukiwanie i sortowanie danych są kluczowe, gdy baza urosnie do setek produktów.
-    await db
-        .execute('CREATE INDEX idx_products_expiry ON products(expiry_date)');
-    await db
-        .execute('CREATE INDEX idx_products_consumed ON products(is_consumed)');
+    // Indeksy przyspieszają wyszukiwanie i sortowanie danych.
+    // Są kluczowe, gdy baza urosnie do setek produktów.
+    await db.execute(
+        'CREATE INDEX idx_products_expiry ON products(expiry_date)');
+    await db.execute(
+        'CREATE INDEX idx_products_consumed ON products(is_consumed)');
   }
 
   // Miejsce na przyszłe aktualizacje struktury bazy danych (Migracje).

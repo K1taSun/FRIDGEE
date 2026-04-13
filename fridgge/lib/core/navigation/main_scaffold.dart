@@ -16,31 +16,18 @@ class MainScaffold extends StatelessWidget {
 
   // Definicje zakładek – ikony i etykiety używane w menu.
   static const _tabs = [
-    _NavTab(
-        label: 'Magazyn',
-        icon: Icons.kitchen_outlined,
-        activeIcon: Icons.kitchen),
-    _NavTab(
-        label: 'Skaner',
-        icon: Icons.qr_code_scanner_outlined,
-        activeIcon: Icons.qr_code_scanner),
-    _NavTab(
-        label: 'Przepisy',
-        icon: Icons.restaurant_menu_outlined,
-        activeIcon: Icons.restaurant_menu),
-    _NavTab(
-        label: 'Zakupy',
-        icon: Icons.shopping_cart_outlined,
-        activeIcon: Icons.shopping_cart),
-    _NavTab(
-        label: 'Profil', icon: Icons.person_outline, activeIcon: Icons.person),
+    _NavTab(label: 'Magazyn', icon: Icons.kitchen_outlined, activeIcon: Icons.kitchen),
+    _NavTab(label: 'Skaner', icon: Icons.qr_code_scanner_outlined, activeIcon: Icons.qr_code_scanner),
+    _NavTab(label: 'Przepisy', icon: Icons.restaurant_menu_outlined, activeIcon: Icons.restaurant_menu),
+    _NavTab(label: 'Zakupy', icon: Icons.shopping_cart_outlined, activeIcon: Icons.shopping_cart),
+    _NavTab(label: 'Profil', icon: Icons.person_outline, activeIcon: Icons.person),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /* extendBody: true pozwala na renderowanie zawartości pod przezroczystym paskiem menu,
-       co daje efekt "pływającego" interfejsu. */
+      // extendBody: true pozwala na renderowanie zawartości pod przezroczystym paskiem menu,
+      // co daje efekt "pływającego" interfejsu.
       extendBody: true,
       body: navigationShell,
       bottomNavigationBar: _FloatingBottomNav(

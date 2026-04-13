@@ -1,16 +1,16 @@
-/* 
-Fridgge — dio_client.dart
-Skonfigurow   any klient HTTP Dio z logowaniem, limitami czasowymi i interceptorem błędów.
-*/
+// ──────────────────────────────────────────────────────────────────────────────
+// Fridgge — dio_client.dart
+// Configured Dio HTTP client with logging, timeouts, and error interceptor.
+// ──────────────────────────────────────────────────────────────────────────────
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 abstract final class DioClient {
   // ── Open Food Facts ──────────────────────────────────────────────────────────
-  /// Podstawowe API do wyszukiwania kodów kreskowych — nie wymaga klucza API.
-  /// Limit: ~100 zapytań/min na adres IP (wystarczająco dla jednego użytkownika).
-  /// Atrybucja: "Powered by Open Food Facts" (licencja ODbL).
+  /// Primary barcode lookup API — no API key required.
+  /// Limit: ~100 req/min per IP (plenty for a single user).
+  /// Attribution: "Powered by Open Food Facts" (ODbL licence).
   static Dio get openFoodFacts => _build(
         baseUrl: 'https://world.openfoodfacts.org',
         connectTimeout: const Duration(seconds: 8),
@@ -18,8 +18,8 @@ abstract final class DioClient {
       );
 
   // ── USDA FoodData Central ────────────────────────────────────────────────────
-  /// API wyszukiwania kodów kreskowych — używane tylko wtedy, gdy OFF nie zwraca wyników.
-  /// Wymaga USDA_API_KEY (z --dart-define lub .env).
+  /// Fallback barcode lookup API — used only when OFF returns no results.
+  /// Requires USDA_API_KEY (from --dart-define or .env).
   static Dio get usda => _build(
         baseUrl: 'https://api.nal.usda.gov/fdc/v1',
         connectTimeout: const Duration(seconds: 8),
@@ -30,8 +30,7 @@ abstract final class DioClient {
   static Dio get gemini => _build(
         baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
         connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(
-            seconds: 60), // Rozbudowane zapytania mogą trwać dłużej
+        receiveTimeout: const Duration(seconds: 60), // Rozbudowane zapytania mogą trwać dłużej
       );
 
   // ── Factory ───────────────────────────────────────────────────────────────────
@@ -121,8 +120,7 @@ class FridggeApiException implements Exception {
   final DioException original;
 
   bool get isNotFound => statusCode == 404;
-  bool get isTimeout =>
-      original.type == DioExceptionType.connectionTimeout ||
+  bool get isTimeout => original.type == DioExceptionType.connectionTimeout ||
       original.type == DioExceptionType.receiveTimeout;
 
   @override

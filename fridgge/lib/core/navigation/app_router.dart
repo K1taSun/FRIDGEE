@@ -1,7 +1,6 @@
-/* Konfiguracja nawigacji opartej na GoRouter.
-Wykorzystujemy StatefulShellRoute do obsługi dolnego paska nawigacji (BottomNavBar),
-co pozwala na zachowanie stanu każdej zakładki (np. przeskoczenie do innej i powrót).
-*/
+// Konfiguracja nawigacji opartej na GoRouter.
+// Wykorzystujemy StatefulShellRoute do obsługi dolnego paska nawigacji (BottomNavBar),
+// co pozwala na zachowanie stanu każdej zakładki (np. przeskoczenie do innej i powrót).
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -49,7 +48,8 @@ GoRouter goRouter(GoRouterRef ref) {
     // Jeśli użytkownik nie jest zalogowany i nie jest na stronie auth -> wyrzuć go do logowania.
     redirect: (context, state) {
       final isAuthenticated = authState.valueOrNull != null || isGuest;
-      final isOnAuthRoute = state.matchedLocation == AppRoutes.login ||
+      final isOnAuthRoute =
+          state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.register;
 
       if (!isAuthenticated && !isOnAuthRoute) return AppRoutes.login;
