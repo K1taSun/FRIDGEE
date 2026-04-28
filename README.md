@@ -164,12 +164,12 @@ sequenceDiagram
 
 ```mermaid
 graph LR
-    A[Aplikacja Flutter] -->|Zwróć przepisy ze składników: \n[Pomidory, Jajka, Ser]| B(FastAPI Endpoint \n `/api/recipes`)
-    B --> C{AI Model Service}
-    C -->|Budowa kontekstu i restrykcji JSON| D[Walidacja odpowiedzi AI]
-    D --> E[Stworzenie czystego obiektu Recipe]
+    A["Aplikacja Flutter"] -->|"Zwróć przepisy ze składników: <br> [Pomidory, Jajka, Ser]"| B("FastAPI Endpoint <br> /api/recipes")
+    B --> C{"AI Model Service"}
+    C -->|"Budowa kontekstu i restrykcji JSON"| D["Walidacja odpowiedzi AI"]
+    D --> E["Stworzenie czystego obiektu Recipe"]
     E --> B
-    B -->|Zwraca 200 OK: 'Szakszuka'| A
+    B -->|"Zwraca 200 OK: 'Szakszuka'"| A
     
     style B fill:#005571,stroke:#fff,stroke-width:2px,color:#fff
     style C fill:#4CAF50,stroke:#fff,stroke-width:2px,color:#fff
@@ -180,11 +180,11 @@ Zawsze dbamy o oddzielenie logiki od widoku.
 
 ```mermaid
 graph TD
-    Widok[Flutter Widget] -.->|Nasłuchuje (watch)| State(Niezmienny Stan / Immutable State)
-    Widok -->|Wywołuje zdarzenie (np. "skonsumuj")| N[StateNotifier]
-    N -->|1. Mutuje bazę (Repository)| DB[(Lokalny Sqflite)]
-    DB -->|2. Sukces zapisu| N
-    N -->|3. Oblicza nowy stan: state = state.copyWith(...)| State
+    Widok["Flutter Widget"] -.->|"Nasłuchuje (watch)"| State("Niezmienny Stan / Immutable State")
+    Widok -->|"Wywołuje zdarzenie (np. skonsumuj)"| N["StateNotifier"]
+    N -->|"1. Mutuje bazę (Repository)"| DB[("Lokalny Sqflite")]
+    DB -->|"2. Sukces zapisu"| N
+    N -->|"3. Oblicza nowy stan: state = state.copyWith(...)"| State
     
     style N fill:#02569B,stroke:#fff,stroke-width:2px,color:#fff
 ```
