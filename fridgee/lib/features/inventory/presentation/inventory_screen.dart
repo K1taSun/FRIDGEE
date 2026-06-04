@@ -1,216 +1,333 @@
-// Ekran magazynu: lista produktów + onboard Quick Start.
+// Ekran magazynu: kafelki niestandardowych stref zarządzanych przez użytkownika lub lista produktów.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/navigation/app_router.dart';
-import '../domain/product_item.dart';
+import '../../../../core/utils/sort_utils.dart';
+import '../../scanner/presentation/add_product_sheet.dart';
+import '../domain/inventory_view_state.dart';
+import '../domain/product_category_codec.dart';
 import '../domain/product_provider.dart';
+import '../domain/storage_provider.dart';
 import 'product_card.dart';
-import 'quick_start_grid.dart';
+import 'widgets/add_storage_zone_dialog.dart';
 
 class InventoryScreen extends ConsumerWidget {
   const InventoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final products = ref.watch(sortedProductsProvider);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    final productsAsync = ref.watch(sortedProductsProvider);
+    final viewMode = ref.watch(inventoryViewModeProvider);
+    final storageObjects = ref.watch(customStorageObjectsProvider);
+    final selectedFilterId = ref.watch(selectedFilterStorageIdProvider);
+    final searchQuery = ref.watch(inventorySearchQueryProvider);
+    final sortMode = ref.watch(inventorySortModeProvider);
+
+    final isFilteredView = viewMode == InventoryViewMode.allProducts && selectedFilterId != 'all';
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                snap: true,
-                backgroundColor: AppColors.background,
-                expandedHeight: 0,
-                toolbarHeight: 64,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Fridgee',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1,
-                          ),
-                    ),
-                    Text(
-                      'Twój magazyn żywności',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textTertiary),
-                    ),
-                  ],
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.search_outlined),
-                    color: AppColors.textSecondary,
-                    onPressed: () {}, // Module 3
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              snap: true,
+              backgroundColor: AppColors.background,
+              expandedHeight: 0,
+              toolbarHeight: 64,
+              leading: isFilteredView
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+                      onPressed: () {
+                        ref.read(selectedFilterStorageIdProvider.notifier).state = 'all';
+                        ref.read(inventorySearchQueryProvider.notifier).state = '';
+                        ref.read(inventoryViewModeProvider.notifier).state = InventoryViewMode.storageObjects;
+                      },
+                    )
+                  : null,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Fridgee',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1,
+                        ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.tune_outlined),
-                    color: AppColors.textSecondary,
-                    onPressed: () {}, // Module 3
-                    padding: const EdgeInsets.only(right: 16),
+                  Text(
+                    viewMode == InventoryViewMode.allProducts
+                        ? (selectedFilterId == 'all'
+                            ? 'Wszystkie produkty'
+                            : storageObjects
+                                    .where((o) => o['id'] == selectedFilterId)
+                                    .map((o) => o['name'] as String)
+                                    .firstOrNull ??
+                                'Zawartość strefy')
+                        : 'Twoje strefy przechowywania',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
-
-              products.when(
-                loading: () => const SliverFillRemaining(
-                  child: Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add_box_outlined, color: AppColors.primary, size: 26),
+                  onPressed: () => AddStorageZoneDialog.show(context, ref),
                 ),
-                error: (err, _) => SliverFillRemaining(
-                  child: _ErrorView(message: err.toString()),
-                ),
-                data: (items) {
-                  if (items.isEmpty) {
-                    return SliverToBoxAdapter(
-                      child: _EmptyInventoryView(),
-                    );
-                  }
-                  return _ProductList(products: items);
-                },
-              ),
-
-              const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
-            ],
-          ),
-        ),
-
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 104),
-          child: FloatingActionButton.extended(
-            onPressed: () => context.go(AppRoutes.scanner),
-            icon: const Icon(Icons.add_a_photo_outlined),
-            label: const Text('Dodaj'),
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.background,
-          ),
-        ),
-      );
-    }
-  }
-
-// Lista produktów
-class _ProductList extends StatelessWidget {
-  const _ProductList({required this.products});
-
-  final List<ProductItem> products;
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverList.separated(
-        itemCount: products.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          return ProductCard(product: products[index]);
-        },
-      ),
-    );
-  }
-}
-
-// Empty state + Szybki start
-class _EmptyInventoryView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Ilustracja hero
-          Container(
-            width: double.infinity,
-            height: 160,
-            decoration: BoxDecoration(
-              gradient: AppColors.cardGradient,
-              borderRadius: AppTheme.radiusLarge,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('🥗', style: TextStyle(fontSize: 56)),
-                const SizedBox(height: 8),
-                Text(
-                  'Twój magazyn jest pusty',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Dodaj produkty przez skaner lub szybki start',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: AppColors.textTertiary),
-                ),
+                const SizedBox(width: 8),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            '⚡ Szybki start',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Kliknij, aby dodać produkt z domyślną datą ważności',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: AppColors.textTertiary),
-          ),
-          const SizedBox(height: 16),
-          const QuickStartGrid(),
-        ],
-      ),
-    );
-  }
-}
 
-// Obsługa błędów
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.message});
+            productsAsync.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+              ),
+              error: (err, _) => SliverFillRemaining(
+                child: Center(child: Text('Błąd: $err', style: const TextStyle(color: AppColors.error))),
+              ),
+              data: (items) {
+                if (viewMode == InventoryViewMode.allProducts) {
+                  final displayedItems = filterAndSortProducts(
+                    products: items,
+                    searchQuery: searchQuery,
+                    sortMode: sortMode,
+                    storageZoneId: selectedFilterId,
+                  );
 
-  final String message;
+                  return SliverMainAxisGroup(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                          child: Column(
+                            children: [
+                              TextField(
+                                onChanged: (v) =>
+                                    ref.read(inventorySearchQueryProvider.notifier).state = v,
+                                decoration: InputDecoration(
+                                  hintText: 'Szukaj produktu…',
+                                  prefixIcon: const Icon(Icons.search, size: 20),
+                                  suffixIcon: searchQuery.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear, size: 18),
+                                          onPressed: () => ref
+                                              .read(inventorySearchQueryProvider.notifier)
+                                              .state = '',
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.sort, size: 18, color: AppColors.textSecondary),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<InventorySortMode>(
+                                        value: sortMode,
+                                        isExpanded: true,
+                                        dropdownColor: AppColors.surfaceElevated,
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: InventorySortMode.expiryAsc,
+                                            child: Text('Data ważności ↑'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: InventorySortMode.expiryDesc,
+                                            child: Text('Data ważności ↓'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: InventorySortMode.nameAsc,
+                                            child: Text('Nazwa A–Z'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: InventorySortMode.nameDesc,
+                                            child: Text('Nazwa Z–A'),
+                                          ),
+                                        ],
+                                        onChanged: (v) {
+                                          if (v != null) {
+                                            ref.read(inventorySortModeProvider.notifier).state = v;
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (displayedItems.isEmpty)
+                        SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 60),
+                              child: Text(
+                                'Brak produktów spełniających kryteria.',
+                                style: TextStyle(color: AppColors.textSecondary),
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          sliver: SliverList.separated(
+                            itemCount: displayedItems.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 8),
+                            itemBuilder: (context, index) =>
+                                ProductCard(product: displayedItems[index]),
+                          ),
+                        ),
+                    ],
+                  );
+                } else {
+                  if (storageObjects.isEmpty) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Text(
+                          'Brak zdefiniowanych stref.\nKliknij przycisk "+" u góry, aby dodać np. własną Lodówkę.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                        ),
+                      ),
+                    );
+                  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              'Wystąpił błąd',
-              style: Theme.of(context).textTheme.titleMedium,
+                  return SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverGrid.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.85,
+                      children: storageObjects.map((obj) {
+                        final zoneId = obj['id'] as String;
+                        final locProducts = items
+                            .where((p) => ProductCategoryCodec.belongsToStorage(p.category, zoneId))
+                            .toList();
+                        
+                        final total = locProducts.length;
+                        final expired = locProducts.where((p) => SortUtils.getStatus(p) == ExpiryStatus.expired).length;
+                        final warning = locProducts.where((p) => 
+                            SortUtils.getStatus(p) == ExpiryStatus.expiresSoon || 
+                            SortUtils.getStatus(p) == ExpiryStatus.expirestoday).length;
+
+                        return GestureDetector(
+                          onTap: () {
+                            ref.read(selectedFilterStorageIdProvider.notifier).state = obj['id'] as String;
+                            ref.read(inventoryViewModeProvider.notifier).state = InventoryViewMode.allProducts;
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              gradient: AppColors.cardGradient,
+                              borderRadius: AppTheme.radiusMedium,
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(obj['emoji'] as String, style: const TextStyle(fontSize: 28)),
+                                    IconButton(
+                                      constraints: const BoxConstraints(),
+                                      padding: EdgeInsets.zero,
+                                      icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+                                      onPressed: () => ref
+                                          .read(customStorageObjectsProvider.notifier)
+                                          .removeZone(obj['id'] as String),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(obj['name'] as String, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Container(
+                                  margin: const EdgeInsets.only(top: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(8)),
+                                  child: Text('$total szt.', style: TextStyle(fontSize: 10, color: AppColors.textPrimary)),
+                                ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.circle, color: AppColors.error, size: 8),
+                                    const SizedBox(width: 6),
+                                    Text('Po terminie: $expired', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.circle, color: AppColors.warning, size: 8),
+                                    const SizedBox(width: 6),
+                                    Text('Wkrótce: $warning', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }
+              },
             ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.textTertiary),
-              textAlign: TextAlign.center,
+            const SliverPadding(padding: EdgeInsets.only(bottom: 160)),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 72, left: 16, right: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FloatingActionButton(
+              heroTag: 'view_mode_toggle_fab',
+              onPressed: () {
+                if (selectedFilterId != 'all') {
+                  ref.read(selectedFilterStorageIdProvider.notifier).state = 'all';
+                }
+                ref.read(inventorySearchQueryProvider.notifier).state = '';
+                ref.read(inventoryViewModeProvider.notifier).update((state) =>
+                    state == InventoryViewMode.allProducts
+                        ? InventoryViewMode.storageObjects
+                        : InventoryViewMode.allProducts);
+              },
+              backgroundColor: AppColors.surfaceElevated,
+              foregroundColor: AppColors.primary,
+              child: Icon(viewMode == InventoryViewMode.allProducts 
+                  ? Icons.grid_view_outlined 
+                  : Icons.format_list_bulleted_outlined),
+            ),
+            FloatingActionButton.extended(
+              heroTag: 'add_new_product_fab',
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(builder: (context) => const AddProductPage()),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Dodaj produkt'),
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.background,
             ),
           ],
         ),

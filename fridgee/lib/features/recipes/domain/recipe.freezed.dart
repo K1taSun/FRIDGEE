@@ -295,7 +295,7 @@ mixin _$Recipe {
   /// Estimated preparation time in minutes.
   int get preparationTime => throw _privateConstructorUsedError;
 
-  /// URL of the recipe image (placeholder or AI-generated).
+  /// URL obrazka (placeholder lub wygenerowany).
   String get imageUrl => throw _privateConstructorUsedError;
 
   /// List of required ingredients with inventory match status.
@@ -520,7 +520,7 @@ class _$RecipeImpl implements _Recipe {
   @override
   final int preparationTime;
 
-  /// URL of the recipe image (placeholder or AI-generated).
+  /// URL obrazka (placeholder lub wygenerowany).
   @override
   @JsonKey()
   final String imageUrl;
@@ -654,7 +654,7 @@ abstract class _Recipe implements Recipe {
   @override
   int get preparationTime;
 
-  /// URL of the recipe image (placeholder or AI-generated).
+  /// URL obrazka (placeholder lub wygenerowany).
   @override
   String get imageUrl;
 

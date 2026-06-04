@@ -29,6 +29,8 @@ class ProductItem {
     this.category,
     this.caloriesPer100g,
     this.isConsumed = false,
+    this.isOpened = false,
+    this.openedAt,
   });
 
   final int? dbId;            // Klucz SQLite
@@ -44,6 +46,28 @@ class ProductItem {
   final String? category;     // Kategoria (np. Nabiał)
   final double? caloriesPer100g; // Kalorie
   final bool isConsumed;      // Czy zużyty (soft-delete)
+
+  final bool isOpened;        // Otwarty (bool)
+  final DateTime? openedAt;   // Data kliknięcia w kłódkę
+
+  // >>> Dynamiczne obliczanie widocznej daty ważności <<<
+  DateTime get effectiveExpiryDate {
+    if (!isOpened || openedAt == null) return expiryDate;
+    
+    int hours = 48; // Domyślnie
+    if (storageLocation == StorageLocation.fridge) {
+      hours = 48; // 2 dni
+    } else if (storageLocation == StorageLocation.pantry) {
+      hours = 72; // 3 dni 
+    } else if (storageLocation == StorageLocation.freezer) {
+      hours = 30 * 24; // Prawie nie psuje się będąc zamrożonym (1 miesiąc)
+    }
+    
+    final dynamicDate = openedAt!.add(Duration(hours: hours));
+    
+    // Zwracamy tę datę, która nastąpi szybciej!
+    return dynamicDate.isBefore(expiryDate) ? dynamicDate : expiryDate;
+  }
 
   factory ProductItem.create({
     required String uuid,
@@ -86,6 +110,8 @@ class ProductItem {
     String? category,
     double? caloriesPer100g,
     bool? isConsumed,
+    bool? isOpened,
+    DateTime? openedAt,
   }) {
     return ProductItem(
       dbId: dbId ?? this.dbId,
@@ -101,6 +127,8 @@ class ProductItem {
       category: category ?? this.category,
       caloriesPer100g: caloriesPer100g ?? this.caloriesPer100g,
       isConsumed: isConsumed ?? this.isConsumed,
+      isOpened: isOpened ?? this.isOpened,
+      openedAt: isOpened == false ? null : (openedAt ?? this.openedAt),
     );
   }
 
@@ -119,6 +147,8 @@ class ProductItem {
         'category': category,
         'calories_per_100g': caloriesPer100g,
         'is_consumed': isConsumed ? 1 : 0,
+        'is_opened': isOpened ? 1 : 0,
+        'opened_at': openedAt?.millisecondsSinceEpoch,
       };
 
   factory ProductItem.fromMap(Map<String, dynamic> map) => ProductItem(
@@ -138,6 +168,8 @@ class ProductItem {
         category: map['category'] as String?,
         caloriesPer100g: (map['calories_per_100g'] as num?)?.toDouble(),
         isConsumed: (map['is_consumed'] as int) == 1,
+        isOpened: (map['is_opened'] as int?) == 1,
+        openedAt: map['opened_at'] != null ? DateTime.fromMillisecondsSinceEpoch(map['opened_at'] as int) : null,
       );
 
   @override

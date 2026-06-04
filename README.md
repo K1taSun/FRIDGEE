@@ -272,6 +272,58 @@ Uruchom projekt na podłączonym symulatorze iOS, emulatorze Androida lub fizycz
 flutter run
 ```
 
+### 7.4 Dodatkowe kroki po ostatnich zmianach (YOLO, skaner hybrydowy, Android)
+
+Instrukcje z sekcji 7.1–7.3 nadal obowiązują. **Po pobraniu najnowszej wersji repozytorium** wykonaj też poniższe punkty — bez nich skaner AI lub build Androida mogą nie działać.
+
+#### Android (obowiązkowe przy buildzie na telefonie / emulatorze)
+
+1. **Android NDK 28.2.13676358** — w Android Studio: *Settings → Languages & Frameworks → Android SDK → SDK Tools* → zaznacz *NDK (Side by side)* w wersji **28.2.13676358** (wymagane przez `onnxruntime` / plugin `jni`).
+2. Po zmianie NDK lub pierwszym klonie repozytorium:
+   ```bash
+   cd fridgee
+   flutter clean
+   flutter pub get
+   flutter run
+   ```
+
+#### Zasoby aplikacji (skaner owoców/warzyw)
+
+3. Upewnij się, że w katalogu `fridgee/assets/models/` są pliki (deklarowane w `pubspec.yaml`):
+   - `yolo_fresh_produce.onnx` — model YOLO (duży plik; musi być w repozytorium lub skopiowany lokalnie),
+   - `yolo_labels.txt`.
+4. W katalogu `fridgee/` utwórz pusty plik **`.env`** (jeśli go nie ma) — `pubspec.yaml` go wymienia jako asset; aplikacja startuje bez kluczy API, ale plik musi istnieć przy buildzie:
+   ```bash
+   cd fridgee
+   type nul > .env
+   ```
+   (na Linux/macOS: `touch .env`).
+
+#### Uruchomienie — co działa bez backendu
+
+| Funkcja | Wymaga backendu? | Uwagi |
+|--------|-------------------|--------|
+| Magazyn, listy zakupów, SQLite | Nie | Działa offline |
+| Skaner kodów + Open Food Facts | Nie* | Wymaga internetu do lookupu kodu |
+| Skaner hybrydowy (YOLO + OCR daty) | Nie | **Fizyczne urządzenie z kamerą** — emulator często nie wystarcza |
+| Przepisy AI (LLM) | Tak | `uvicorn` w `fridgee-backend` (sekcja 7.2) |
+
+5. **Uprawnienia:** przy pierwszym skanowaniu zaakceptuj dostęp do kamery (Android/iOS).
+6. **Kod generowany (Riverpod):** po zmianach w plikach `*.g.dart` / providerach:
+   ```bash
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+
+#### Skaner inteligentny — jak testować
+
+- Skieruj jabłko / warzywo na środek kadru (model ucina center-crop 320×320).
+- W **debug** w konsoli zobaczysz m.in. `[YOLO] √ Detekcja: apple → Jabłko (97%)` oraz `Stabilizacja: Jabłko (1/3 klatek)` — produkt jest uznany po **3 kolejnych** detekcjach tej samej klasy (próg pewności **55%**).
+- Po rozpoznaniu produktu skieruj aparat na **datę ważności** na opakowaniu (OCR uruchamia się dopiero wtedy).
+
+#### Backend
+
+7. Backend FastAPI jest **opcjonalny** do podstawowej aplikacji mobilnej; uruchom go tylko, jeśli testujesz moduł przepisów AI (sekcja 7.2).
+
 ---
 
 ## 📜 8. Konwencje i Przewodnik Kontrybucji

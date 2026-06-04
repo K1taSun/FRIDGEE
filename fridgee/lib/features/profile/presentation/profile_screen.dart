@@ -1,17 +1,22 @@
 // Ekran profilu użytkownika i ustawienia.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/navigation/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/theme_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -21,30 +26,26 @@ class ProfileScreen extends StatelessWidget {
           children: [
             Text('Profil', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 24),
-
-            // Avatar placeholder
             Center(
               child: Column(
                 children: [
                   Container(
                     width: 80,
                     height: 80,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: AppColors.primaryGradient,
                     ),
                     child: const Center(
-                      child: Text('👤',
-                          style: TextStyle(fontSize: 36)),
+                      child: Text('👤', style: TextStyle(fontSize: 36)),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text('Gość', style: Theme.of(context).textTheme.titleMedium),
-                  Text('Zaloguj się, aby zsynchronizować dane',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AppColors.textTertiary)),
+                  Text(
+                    'Zaloguj się, aby zsynchronizować dane',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
+                  ),
                   const SizedBox(height: 16),
                   FilledButton(
                     onPressed: () => context.go(AppRoutes.login),
@@ -54,15 +55,15 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Sekcje ustawień
             _SectionHeader('Wygląd'),
             _SettingsTile(
-              icon: Icons.dark_mode_outlined,
+              icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
               label: 'Tryb ciemny',
-              trailing: Switch(value: true, onChanged: (_) {}),
+              trailing: Switch(
+                value: isDark,
+                onChanged: (value) => ref.read(themeModeProvider.notifier).setDarkMode(value),
+              ),
             ),
-
             const SizedBox(height: 16),
             _SectionHeader('Gospodartstwo domowe'),
             _SettingsTile(
@@ -77,7 +78,6 @@ class ProfileScreen extends StatelessWidget {
               onTap: () {},
               premium: true,
             ),
-
             const SizedBox(height: 16),
             _SectionHeader('NoWaste Pro 🔒'),
             _SettingsTile(
@@ -104,7 +104,6 @@ class ProfileScreen extends StatelessWidget {
               premium: true,
               onTap: () {},
             ),
-
             const SizedBox(height: 16),
             _SectionHeader('Informacje'),
             _SettingsTile(

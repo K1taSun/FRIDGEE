@@ -10,30 +10,27 @@ enum ExpiryStatus {
 }
 
 abstract final class SortUtils {
-  // Sortowanie po dacie ważności (rosnąco wg pilności).
-  // Produkty zużyte są pomijane.
+  // Sortowanie po SKRÓCONEJ DYNAMCZNIE dacie ważności (effectiveExpiryDate)
   static List<ProductItem> sortByExpiry(List<ProductItem> products) {
     final now = DateTime.now();
     final active = products.where((p) => !p.isConsumed).toList();
 
     active.sort((a, b) {
-      final statusA = _status(a.expiryDate, now);
-      final statusB = _status(b.expiryDate, now);
+      final statusA = _status(a.effectiveExpiryDate, now);
+      final statusB = _status(b.effectiveExpiryDate, now);
 
-      // Grupowanie wg statusu (index w enum)
       final groupCompare = statusA.index.compareTo(statusB.index);
       if (groupCompare != 0) return groupCompare;
 
-      // Sortowanie chronologiczne wewnątrz grup
-      return a.expiryDate.compareTo(b.expiryDate);
+      return a.effectiveExpiryDate.compareTo(b.effectiveExpiryDate);
     });
 
     return active;
   }
 
-  // Pobiera status ważności produktu.
+  // Pobiera status ważności korzystając z nowej logiki daty
   static ExpiryStatus getStatus(ProductItem product) =>
-      _status(product.expiryDate, DateTime.now());
+      _status(product.effectiveExpiryDate, DateTime.now());
 
   static ExpiryStatus _status(DateTime expiry, DateTime now) {
     final startOfToday = DateTime(now.year, now.month, now.day);
@@ -46,14 +43,13 @@ abstract final class SortUtils {
     return ExpiryStatus.fresh;
   }
 
-  // Liczba dni do końca ważności (ujemne = po terminie).
   static int daysUntilExpiry(ProductItem product) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final expiry = DateTime(
-      product.expiryDate.year,
-      product.expiryDate.month,
-      product.expiryDate.day,
+      product.effectiveExpiryDate.year,
+      product.effectiveExpiryDate.month,
+      product.effectiveExpiryDate.day,
     );
     return expiry.difference(today).inDays;
   }

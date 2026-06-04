@@ -90,7 +90,7 @@ class ShoppingScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(
+              Center(
                 child: SizedBox(
                     width: 36,
                     height: 4,
@@ -98,7 +98,7 @@ class ShoppingScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                             color: AppColors.border,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(2))))),
+                                const BorderRadius.all(Radius.circular(2))))),
               ),
               const SizedBox(height: 16),
               Text('Dodaj produkt',
@@ -198,7 +198,7 @@ class _EmptyShoppingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.shopping_cart_outlined,
+          Icon(Icons.shopping_cart_outlined,
               color: AppColors.textTertiary, size: 64),
           const SizedBox(height: 16),
           Text('Lista zakupów jest pusta',

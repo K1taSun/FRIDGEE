@@ -6,30 +6,9 @@ part of 'product_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$productRepositoryHash() => r'1143e6a957468f07814b030b8e53d8ea1ddb037b';
+String _$sortedProductsHash() => r'3ddb0811a02a39af8157e3755ff18825979a3c5b';
 
-/// See also [productRepository].
-@ProviderFor(productRepository)
-final productRepositoryProvider =
-    AutoDisposeProvider<ProductRepository>.internal(
-  productRepository,
-  name: r'productRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$productRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ProductRepositoryRef = AutoDisposeProviderRef<ProductRepository>;
-String _$sortedProductsHash() => r'fe50f7c11b6d0cbc4474c4ef9bb6edb3fbfa52ea';
-
-/// Streams all active (non-consumed) products sorted by expiry urgency.
-/// Updates automatically when the Isar DB changes.
-///
-/// Copied from [sortedProducts].
+/// See also [sortedProducts].
 @ProviderFor(sortedProducts)
 final sortedProductsProvider =
     AutoDisposeStreamProvider<List<ProductItem>>.internal(
@@ -45,11 +24,9 @@ final sortedProductsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SortedProductsRef = AutoDisposeStreamProviderRef<List<ProductItem>>;
-String _$expiringSoonCountHash() => r'b934865cbc7b8f4ba41e039a72649b912af9c5e5';
+String _$expiringSoonCountHash() => r'f484326bc7dd3e58a7a48df36ebef0a76a97f8ad';
 
-/// Returns the count of products expiring within 48 h (badge on nav tab).
-///
-/// Copied from [expiringSoonCount].
+/// See also [expiringSoonCount].
 @ProviderFor(expiringSoonCount)
 final expiringSoonCountProvider = AutoDisposeProvider<int>.internal(
   expiringSoonCount,
@@ -64,11 +41,9 @@ final expiringSoonCountProvider = AutoDisposeProvider<int>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ExpiringSoonCountRef = AutoDisposeProviderRef<int>;
-String _$inventoryNotifierHash() => r'6fb8c4daccf4d9b2067790932ac1a6d0a91aa3ac';
+String _$inventoryNotifierHash() => r'2d4931525bf166e76e85b47c91f3bf113f055122';
 
-/// Manages inventory mutations: add, consume, delete.
-///
-/// Copied from [InventoryNotifier].
+/// See also [InventoryNotifier].
 @ProviderFor(InventoryNotifier)
 final inventoryNotifierProvider =
     AutoDisposeAsyncNotifierProvider<InventoryNotifier, void>.internal(

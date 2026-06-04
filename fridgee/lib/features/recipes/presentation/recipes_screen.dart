@@ -115,7 +115,7 @@ class _FavoritesTabPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.favorite_border,
+          Icon(Icons.favorite_border,
               color: AppColors.textTertiary, size: 48),
           const SizedBox(height: 16),
           Text('Brak ulubionych',

@@ -33,7 +33,7 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Załadowanie zmiennych środowiskowych (np. klucze API do USDA)
+  // Załadowanie zmiennych środowiskowych (np. klucze API)
   await dotenv.load(fileName: '.env').catchError((_) {
     debugPrint('⚠️ Brak pliku .env — system przejdzie na wartości domyślne.');
   });
