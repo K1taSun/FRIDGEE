@@ -24,7 +24,8 @@ Stream<User?> authState(AuthStateRef ref) {
 }
 
 // Switch dla trybu gościa (pod Moduł 2).
-final isGuestProvider = StateProvider<bool>((ref) => false);
+/// Domyślnie tryb gościa — bez ekranu logowania przy starcie.
+final isGuestProvider = StateProvider<bool>((ref) => true);
 
 // Kontroler logiki auth.
 @riverpod

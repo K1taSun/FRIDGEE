@@ -21,8 +21,6 @@ class LiveScanFrameProcessor {
 
   DateTime _lastOcrAttempt = DateTime.fromMillisecondsSinceEpoch(0);
   static const _ocrIntervalMs = 900;
-  int _framesWithoutProduct = 0;
-
   Future<void> ensureInitialized() => _yolo.ensureInitialized();
 
   bool get isComplete =>
@@ -41,33 +39,75 @@ class LiveScanFrameProcessor {
 
     var stateChanged = false;
 
-    if (detectedBarcode == null && detectedProductName == null) {
-      final productName = await _yolo.detectFromCameraFrame(image, camera);
-      if (productName != null) {
-        detectedProductName = productName;
-        _framesWithoutProduct = 0;
-        stateChanged = true;
-        HapticFeedback.lightImpact();
-      } else {
-        _framesWithoutProduct++;
-      }
-    }
-
     if (barcodeLookupEnabled &&
         detectedBarcode == null &&
-        detectedProductName == null &&
-        _framesWithoutProduct % 5 == 0) {
+        detectedProductName == null) {
       final barcodes = await _barcodeScanner.processImage(inputImage);
       if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
         detectedBarcode = barcodes.first.rawValue;
         _yolo.resetStreak();
-        _framesWithoutProduct = 0;
+        stateChanged = true;
+        HapticFeedback.lightImpact();
+      }
+    }
+
+    if (detectedBarcode == null && detectedProductName == null) {
+      final productName = await _yolo.detectFromCameraFrame(image, camera);
+      if (productName != null) {
+        detectedProductName = productName;
         stateChanged = true;
         HapticFeedback.lightImpact();
       }
     }
 
     // OCR tylko gdy produkt jest rozpoznany — daty są na etykiecie obok kodu/nazwy.
+    if (detectedDate == null && _hasProduct) {
+      final now = DateTime.now();
+      if (now.difference(_lastOcrAttempt).inMilliseconds >= _ocrIntervalMs) {
+        _lastOcrAttempt = now;
+        final recognizedText = await _textRecognizer.processImage(inputImage);
+        final parsed = OcrDateExtractor.extractForLiveScan(recognizedText.text);
+        if (parsed != null) {
+          detectedDate = parsed;
+          stateChanged = true;
+          HapticFeedback.lightImpact();
+        }
+      }
+    }
+
+    return stateChanged;
+  }
+
+  /// Skan z pojedynczego zdjęcia (takePicture) — YOLO + kod + OCR.
+  Future<bool> processPicture(
+    String filePath,
+    CameraDescription camera, {
+    bool barcodeLookupEnabled = true,
+  }) async {
+    final inputImage = InputImage.fromFilePath(filePath);
+    var stateChanged = false;
+
+    if (barcodeLookupEnabled &&
+        detectedBarcode == null &&
+        detectedProductName == null) {
+      final barcodes = await _barcodeScanner.processImage(inputImage);
+      if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+        detectedBarcode = barcodes.first.rawValue;
+        _yolo.resetStreak();
+        stateChanged = true;
+        HapticFeedback.lightImpact();
+      }
+    }
+
+    if (detectedBarcode == null && detectedProductName == null) {
+      final productName = await _yolo.detectFromPictureFile(filePath);
+      if (productName != null) {
+        detectedProductName = productName;
+        stateChanged = true;
+        HapticFeedback.lightImpact();
+      }
+    }
+
     if (detectedDate == null && _hasProduct) {
       final now = DateTime.now();
       if (now.difference(_lastOcrAttempt).inMilliseconds >= _ocrIntervalMs) {

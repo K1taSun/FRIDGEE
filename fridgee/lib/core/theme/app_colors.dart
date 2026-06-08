@@ -50,7 +50,7 @@ abstract final class AppColors {
   static LinearGradient get backgroundGradient => LinearGradient(
         colors: isDarkMode
             ? const [Color(0xFF181818), Color(0xFF121212)]
-            : const [Color(0xFFF5F5F5), Color(0xFFEEEEEE)],
+            : const [Color(0xFFE0E0E0), Color(0xFFD6D6D6)],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       );
@@ -58,20 +58,20 @@ abstract final class AppColors {
   static LinearGradient get cardGradient => LinearGradient(
         colors: isDarkMode
             ? const [Color(0xFF2A2A2A), Color(0xFF1E1E1E)]
-            : const [Color(0xFFFFFFFF), Color(0xFFF0F0F0)],
+            : const [Color(0xFFF2F2F2), Color(0xFFE6E6E6)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   // ── Light palette (public for ThemeData) ────────────────────────────────────
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceElevatedLight = Color(0xFFF0F0F0);
-  static const Color backgroundLight = Color(0xFFF5F5F5);
-  static const Color textPrimaryLight = Color(0xFF1A1A1A);
-  static const Color textSecondaryLight = Color(0xFF616161);
-  static const Color textTertiaryLight = Color(0xFF9E9E9E);
-  static const Color borderLight = Color(0xFFE0E0E0);
-  static const Color dividerLight = Color(0xFFEEEEEE);
+  static const Color surfaceLight = Color(0xFFF2F2F2);
+  static const Color surfaceElevatedLight = Color(0xFFE6E6E6);
+  static const Color backgroundLight = Color(0xFFE0E0E0);
+  static const Color textPrimaryLight = Color(0xFF121212);
+  static const Color textSecondaryLight = Color(0xFF424242);
+  static const Color textTertiaryLight = Color(0xFF757575);
+  static const Color borderLight = Color(0xFFBDBDBD);
+  static const Color dividerLight = Color(0xFFCCCCCC);
 
   // ── Dark palette (public for ThemeData) ─────────────────────────────────────
   static const Color textPrimaryDark = Color(0xFFFFFFFF);
@@ -95,6 +95,6 @@ abstract final class AppColors {
   static const Color _borderDark = borderDark;
   static const Color _dividerDark = dividerDark;
 
-  static const Color _backgroundSecondaryLight = Color(0xFFEEEEEE);
+  static const Color _backgroundSecondaryLight = Color(0xFFD6D6D6);
   static const Color _textDisabledLight = Color(0xFFBDBDBD);
 }

@@ -30,11 +30,8 @@ class _HybridLiveScannerPageState extends State<HybridLiveScannerPage> {
 
   final LiveScanFrameProcessor _processor = LiveScanFrameProcessor();
 
-  DateTime _lastFrameProcessed = DateTime.fromMillisecondsSinceEpoch(0);
-  /// Minimalny odstęp między inferencjami YOLO.
-  static const _frameIntervalMs = 220;
-  CameraImage? _latestFrame;
-  bool _inferenceLoopRunning = false;
+  Timer? _scanTimer;
+  static const _captureIntervalMs = 500;
 
   @override
   void initState() {
@@ -66,7 +63,10 @@ class _HybridLiveScannerPageState extends State<HybridLiveScannerPage> {
       );
 
       await _cameraController!.initialize();
-      await _cameraController!.startImageStream(_processCameraFrame);
+      _scanTimer = Timer.periodic(
+        const Duration(milliseconds: _captureIntervalMs),
+        (_) => unawaited(_captureAndProcess()),
+      );
       if (mounted) setState(() {});
     } catch (e) {
       debugPrint('[HybridScanner] Błąd kamery: $e');
@@ -81,56 +81,41 @@ class _HybridLiveScannerPageState extends State<HybridLiveScannerPage> {
     return status.isGranted;
   }
 
-  void _processCameraFrame(CameraImage image) {
-    if (_isTearingDown || _processor.isComplete) return;
-    _latestFrame = image;
-    if (!_inferenceLoopRunning) {
-      unawaited(_runInferenceLoop());
-    }
-  }
+  Future<void> _captureAndProcess() async {
+    if (_isTearingDown || _isProcessing || _processor.isComplete) return;
 
-  Future<void> _runInferenceLoop() async {
-    _inferenceLoopRunning = true;
-    while (!_isTearingDown && !_processor.isComplete && _latestFrame != null) {
-      final elapsed =
-          DateTime.now().difference(_lastFrameProcessed).inMilliseconds;
-      if (elapsed < _frameIntervalMs) {
-        await Future<void>.delayed(
-          Duration(milliseconds: _frameIntervalMs - elapsed),
-        );
-        if (_isTearingDown || _processor.isComplete) break;
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isInitialized) return;
+
+    _isProcessing = true;
+    String? tempPath;
+    try {
+      final file = await controller.takePicture();
+      tempPath = file.path;
+      final camera = controller.description;
+
+      final stateChanged = await _processor.processPicture(
+        file.path,
+        camera,
+        barcodeLookupEnabled: true,
+      );
+      if (stateChanged && mounted) setState(() {});
+    } catch (e) {
+      debugPrint('[HybridScanner] Błąd zdjęcia: $e');
+    } finally {
+      if (tempPath != null) {
+        try {
+          await File(tempPath).delete();
+        } catch (_) {}
       }
-
-      _isProcessing = true;
-      final frame = _latestFrame;
-      _latestFrame = null;
-      _lastFrameProcessed = DateTime.now();
-
-      try {
-        final camera = _cameraController?.description;
-        if (camera == null || frame == null) continue;
-
-        final stateChanged = await _processor.processFrame(
-          frame,
-          camera,
-          barcodeLookupEnabled: false,
-        );
-        if (stateChanged && mounted) setState(() {});
-      } catch (e) {
-        debugPrint('[HybridScanner] Błąd klatki: $e');
-      } finally {
-        _isProcessing = false;
-      }
-    }
-    _inferenceLoopRunning = false;
-    if (_latestFrame != null && !_isTearingDown && !_processor.isComplete) {
-      unawaited(_runInferenceLoop());
+      _isProcessing = false;
     }
   }
 
   @override
   void dispose() {
     _isTearingDown = true;
+    _scanTimer?.cancel();
     final controller = _cameraController;
     _cameraController = null;
     unawaited(_tearDown(controller));
@@ -138,12 +123,6 @@ class _HybridLiveScannerPageState extends State<HybridLiveScannerPage> {
   }
 
   Future<void> _tearDown(CameraController? controller) async {
-    try {
-      if (controller?.value.isStreamingImages ?? false) {
-        await controller!.stopImageStream();
-      }
-    } catch (_) {}
-
     while (_isProcessing) {
       await Future<void>.delayed(const Duration(milliseconds: 10));
     }
@@ -154,11 +133,7 @@ class _HybridLiveScannerPageState extends State<HybridLiveScannerPage> {
 
   Future<void> _confirmAndReturn() async {
     final navigator = Navigator.of(context);
-    try {
-      if (_cameraController?.value.isStreamingImages ?? false) {
-        await _cameraController!.stopImageStream();
-      }
-    } catch (_) {}
+    _scanTimer?.cancel();
     if (!mounted) return;
 
     navigator.pop(

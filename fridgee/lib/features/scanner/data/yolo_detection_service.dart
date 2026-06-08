@@ -16,8 +16,7 @@ import 'yolo_nms.dart';
 class YoloDetectionService {
   static const _modelAsset = 'assets/models/yolo_fresh_produce.onnx';
   static const _inputSize = 320; 
-  // Skoro procenty będą działać poprawnie (0-100%), wracamy do bezpiecznego progu 35%
-  static const _confidenceThreshold = 0.35; 
+  static const _confidenceThreshold = 0.50;
   static const _iouThreshold = 0.45;
 
   OrtSession? _session;
@@ -27,9 +26,13 @@ class YoloDetectionService {
   int _numClasses = FreshProduceLabels.numClasses;
 
   Float32List? _inputBuffer;
-  String? _lastCandidate;
-  int _candidateStreak = 0;
-  static const _requiredStreak = 2;
+
+  final List<String> _recentLabels = [];
+  static const _fastAcceptScore = 0.80;
+  static const _mediumVoteWindow = 4;
+  static const _mediumVotesRequired = 2;
+  static const _lowVoteWindow = 5;
+  static const _lowVotesRequired = 3;
 
   YoloDetectionService() {
     _initialize();
@@ -74,28 +77,50 @@ class YoloDetectionService {
     await ensureInitialized();
     if (_session == null || _inputBuffer == null) return null;
 
-    OrtValueTensor? inputTensor;
-    OrtRunOptions? runOptions;
-    List<OrtValue?>? outputs;
-
     try {
       final rgb = cameraImageToRgb(cameraImage);
       if (rgb == null) return null;
 
-      // KLUCZOWA POPRAWKA: Obrót matrycy (z krajobrazu do portretu)
-      // Bez tego sztuczna inteligencja wycinała tło obok pomidora!
       img.Image orientedImage = rgb;
       if (Platform.isAndroid && camera.sensorOrientation != 0) {
         orientedImage = img.copyRotate(rgb, angle: camera.sensorOrientation);
       }
 
       _fillInputBufferNchw(orientedImage);
+      return _runInference();
+    } catch (e) {
+      return null;
+    }
+  }
 
+  /// Zdjęcie z takePicture() — bez buforów strumienia kamery (bez gralloc).
+  Future<String?> detectFromPictureFile(String filePath) async {
+    await ensureInitialized();
+    if (_session == null || _inputBuffer == null) return null;
+
+    try {
+      final bytes = await File(filePath).readAsBytes();
+      final decoded = img.decodeImage(bytes);
+      if (decoded == null) return null;
+
+      _fillInputBufferNchw(decoded);
+      return _runInference();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<String?> _runInference() async {
+    OrtValueTensor? inputTensor;
+    OrtRunOptions? runOptions;
+    List<OrtValue?>? outputs;
+
+    try {
       inputTensor = OrtValueTensor.createTensorWithDataList(
         _inputBuffer!,
         [1, 3, _inputSize, _inputSize],
       );
-      
+
       runOptions = OrtRunOptions();
       outputs = await _session!.runAsync(runOptions, {_inputName: inputTensor});
 
@@ -103,9 +128,7 @@ class YoloDetectionService {
         return null;
       }
 
-      final outputValue = outputs.first!;
-      final rawOutput = _extractOutput(outputValue);
-
+      final rawOutput = _extractOutput(outputs.first!);
       if (rawOutput == null) return null;
 
       final detections = yoloNonMaxSuppression(
@@ -119,22 +142,20 @@ class YoloDetectionService {
 
       detections.sort((a, b) => b.score.compareTo(a.score));
       final best = detections.first;
-      
-      final polishName = FreshProduceLabels.toPolish(best.classIndex);
 
-      if (polishName == "Inne" || polishName == "Produkt") {
-         return null;
-      }
+      final polishName = FreshProduceLabels.toPolish(best.classIndex);
+      if (polishName == 'Inne' || polishName == 'Produkt') return null;
 
       if (kDebugMode) {
         final eng = best.classIndex < FreshProduceLabels.english.length
             ? FreshProduceLabels.english[best.classIndex]
             : '?';
-        // Teraz pokaże się prawdiłowa wartość np. 87% zamiast 31185%
-        debugPrint('[YOLO] √ Detekcja: $eng → $polishName (${(best.score * 100).toStringAsFixed(0)}%)');
+        debugPrint(
+          '[YOLO] √ Detekcja: $eng → $polishName (${(best.score * 100).toStringAsFixed(0)}%)',
+        );
       }
 
-      return _stabilize(polishName);
+      return _stabilize(polishName, score: best.score);
     } catch (e) {
       return null;
     } finally {
@@ -218,20 +239,54 @@ class YoloDetectionService {
     return formattedMatrix;
   }
 
-  String? _stabilize(String name) {
-    if (name == _lastCandidate) {
-      _candidateStreak++;
-    } else {
-      _lastCandidate = name;
-      _candidateStreak = 1;
+  String? _stabilize(String name, {required double score}) {
+    if (score >= _fastAcceptScore) {
+      if (kDebugMode) {
+        debugPrint(
+          '[YOLO] Akceptacja (1 klatka, ${(score * 100).toStringAsFixed(0)}%): $name',
+        );
+      }
+      _recentLabels.clear();
+      return name;
     }
-    if (_candidateStreak >= _requiredStreak) return name;
+
+    _recentLabels.add(name);
+    while (_recentLabels.length > _lowVoteWindow) {
+      _recentLabels.removeAt(0);
+    }
+
+    final useMediumBand = score >= 0.65;
+    final window = useMediumBand ? _mediumVoteWindow : _lowVoteWindow;
+    final required = useMediumBand ? _mediumVotesRequired : _lowVotesRequired;
+    final slice = _recentLabels.length > window
+        ? _recentLabels.sublist(_recentLabels.length - window)
+        : _recentLabels;
+
+    var votes = 0;
+    for (final label in slice) {
+      if (label == name) votes++;
+    }
+
+    if (votes >= required) {
+      if (kDebugMode) {
+        debugPrint(
+          '[YOLO] Akceptacja ($votes/$window, ${(score * 100).toStringAsFixed(0)}%): $name',
+        );
+      }
+      _recentLabels.clear();
+      return name;
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        '[YOLO] Stabilizacja: $name ($votes/$required w $window, ${(score * 100).toStringAsFixed(0)}%)',
+      );
+    }
     return null;
   }
 
   void resetStreak() {
-    _lastCandidate = null;
-    _candidateStreak = 0;
+    _recentLabels.clear();
   }
 
   void dispose() {
