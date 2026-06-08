@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'main_nav_bar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
@@ -25,15 +26,21 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // extendBody: true pozwala na renderowanie zawartości pod przezroczystym paskiem menu,
-      // co daje efekt "pływającego" interfejsu.
-      extendBody: true,
-      body: navigationShell,
-      bottomNavigationBar: _FloatingBottomNav(
-        currentIndex: navigationShell.currentIndex,
-        onTap: _onTap,
-        tabs: _tabs,
+    final contentBottomPadding =
+        MainNavBar.overlayHeight + MediaQuery.viewPaddingOf(context).bottom;
+
+    return MainNavBarScope(
+      contentBottomPadding: contentBottomPadding,
+      child: Scaffold(
+        // extendBody: true pozwala na renderowanie zawartości pod przezroczystym paskiem menu,
+        // co daje efekt "pływającego" interfejsu.
+        extendBody: true,
+        body: navigationShell,
+        bottomNavigationBar: _FloatingBottomNav(
+          currentIndex: navigationShell.currentIndex,
+          onTap: _onTap,
+          tabs: _tabs,
+        ),
       ),
     );
   }

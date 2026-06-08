@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/navigation/main_nav_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../domain/shopping_item.dart';
@@ -16,11 +17,12 @@ class ShoppingScreen extends ConsumerWidget {
     final items = ref.watch(shoppingItemsProvider);
 
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
+      body: MainNavBody(
+        content: SafeArea(
+          bottom: false,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
             SliverAppBar(
               floating: true,
               snap: true,
@@ -60,18 +62,21 @@ class ShoppingScreen extends ConsumerWidget {
                 );
               },
             ),
-            const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
-          ],
+              SliverPadding(
+                padding: EdgeInsets.only(bottom: MainNavBody.scrollBottomPadding(context)),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 104),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showAddItemSheet(context, ref),
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text('Wpisz'),
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.background,
+        actionBar: Align(
+          alignment: Alignment.centerRight,
+          child: FloatingActionButton.extended(
+            onPressed: () => _showAddItemSheet(context, ref),
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Wpisz'),
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.background,
+          ),
         ),
       ),
     );

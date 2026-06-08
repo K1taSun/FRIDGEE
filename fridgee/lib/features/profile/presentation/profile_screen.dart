@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/navigation/app_router.dart';
+import '../../../../core/navigation/main_nav_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -22,7 +23,12 @@ class ProfileScreen extends ConsumerWidget {
         bottom: false,
         child: ListView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            MainNavBar.scrollBottomInset(context, extra: 16),
+          ),
           children: [
             Text('Profil', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 24),

@@ -1,9 +1,9 @@
 // Ekran magazynu: kafelki niestandardowych stref zarządzanych przez użytkownika lub lista produktów.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/navigation/main_nav_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/sort_utils.dart';
@@ -20,8 +20,6 @@ class InventoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
     final productsAsync = ref.watch(sortedProductsProvider);
     final viewMode = ref.watch(inventoryViewModeProvider);
     final storageObjects = ref.watch(customStorageObjectsProvider);
@@ -33,11 +31,12 @@ class InventoryScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        bottom: false,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
+      body: MainNavBody(
+        content: SafeArea(
+          bottom: false,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
             SliverAppBar(
               floating: true,
               snap: true,
@@ -289,46 +288,45 @@ class InventoryScreen extends ConsumerWidget {
                 }
               },
             ),
-            const SliverPadding(padding: EdgeInsets.only(bottom: 160)),
-          ],
+              SliverPadding(
+                padding: EdgeInsets.only(bottom: MainNavBody.scrollBottomPadding(context)),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 72, left: 16, right: 16),
-        child: Row(
+        actionBar: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            FloatingActionButton(
-              heroTag: 'view_mode_toggle_fab',
-              onPressed: () {
-                if (selectedFilterId != 'all') {
-                  ref.read(selectedFilterStorageIdProvider.notifier).state = 'all';
-                }
-                ref.read(inventorySearchQueryProvider.notifier).state = '';
-                ref.read(inventoryViewModeProvider.notifier).update((state) =>
-                    state == InventoryViewMode.allProducts
-                        ? InventoryViewMode.storageObjects
-                        : InventoryViewMode.allProducts);
-              },
-              backgroundColor: AppColors.surfaceElevated,
-              foregroundColor: AppColors.primary,
-              child: Icon(viewMode == InventoryViewMode.allProducts 
-                  ? Icons.grid_view_outlined 
-                  : Icons.format_list_bulleted_outlined),
-            ),
-            FloatingActionButton.extended(
-              heroTag: 'add_new_product_fab',
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(builder: (context) => const AddProductPage()),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Dodaj produkt'),
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.background,
-            ),
+                FloatingActionButton(
+                  heroTag: 'view_mode_toggle_fab',
+                  onPressed: () {
+                    if (selectedFilterId != 'all') {
+                      ref.read(selectedFilterStorageIdProvider.notifier).state = 'all';
+                    }
+                    ref.read(inventorySearchQueryProvider.notifier).state = '';
+                    ref.read(inventoryViewModeProvider.notifier).update((state) =>
+                        state == InventoryViewMode.allProducts
+                            ? InventoryViewMode.storageObjects
+                            : InventoryViewMode.allProducts);
+                  },
+                  backgroundColor: AppColors.surfaceElevated,
+                  foregroundColor: AppColors.primary,
+                  child: Icon(viewMode == InventoryViewMode.allProducts
+                      ? Icons.grid_view_outlined
+                      : Icons.format_list_bulleted_outlined),
+                ),
+                FloatingActionButton.extended(
+                  heroTag: 'add_new_product_fab',
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(builder: (context) => const AddProductPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Dodaj produkt'),
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.background,
+                ),
           ],
         ),
       ),

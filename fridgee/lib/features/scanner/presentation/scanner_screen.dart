@@ -1,7 +1,6 @@
 // Hub skanera — główne skanowanie (AI + OCR) lub sam kod kreskowy.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -56,8 +55,6 @@ class ScannerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(

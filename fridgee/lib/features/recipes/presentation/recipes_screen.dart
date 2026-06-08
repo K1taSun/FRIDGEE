@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/navigation/main_nav_bar.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class RecipesScreen extends StatelessWidget {
@@ -12,11 +13,12 @@ class RecipesScreen extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        body: MainNavBody(
+          content: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Column(
@@ -28,7 +30,7 @@ class RecipesScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Zero Waste — zamień resztki w posiłek',
+                      'Zero Waste - zamień resztki w posiłek',
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -52,17 +54,18 @@ class RecipesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 104),
-          child: FloatingActionButton.extended(
-            onPressed: () {},
-            icon: const Icon(Icons.auto_awesome_outlined),
-            label: const Text('Generuj przepisy'),
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.background,
+          actionBar: Align(
+            alignment: Alignment.centerRight,
+            child: FloatingActionButton.extended(
+              onPressed: () {},
+              icon: const Icon(Icons.auto_awesome_outlined),
+              label: const Text('Generuj przepisy'),
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.background,
+            ),
           ),
         ),
       ),
